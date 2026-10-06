@@ -596,6 +596,7 @@ const mem = {};
 const cloud = tg && tg.CloudStorage && tg.isVersionAtLeast && tg.isVersionAtLeast("6.9") ? tg.CloudStorage : null;
 let syncPending = false;
 let booted = false;
+let allowEmptyPush = false;
 
 function readLocal(){
   try {
@@ -617,6 +618,9 @@ const CHUNK = 3800;
 let cloudGen = "a", cloudBusy = false, cloudAgain = false;
 function pushCloud(){
   if (!cloud || !mem[KEY]) return;
+  /* пустое состояние в облако не пишем — иначе свежая пустая установка
+     затрёт копию с другого устройства. Исключение — явный сброс. */
+  if (state && richness(state) === 0 && !allowEmptyPush){ syncPending = false; updateSyncNote(); return; }
   if (cloudBusy){ cloudAgain = true; return; }
   cloudBusy = true; cloudAgain = false;
   const raw = mem[KEY];
@@ -643,35 +647,59 @@ function pushCloud(){
     }));
   } catch(e){ finish(false); }
 }
-/* чтение: сначала указатель, потом все части; для старых версий — один ключ */
-function readCloud(cb){
-  const single = () => cloud.getItem(KEY, (e, v) => {
-    let r = null; try { r = v ? JSON.parse(v) : null; } catch(x){}
-    cb(e ? undefined : r);
-  });
-  try {
-    cloud.getItem(KEY + "_meta", (err, m) => {
-      if (err) return cb(undefined);
-      let meta = null; try { meta = m ? JSON.parse(m) : null; } catch(x){}
-      if (!meta || !meta.n) return single();
-      cloudGen = meta.g;
-      const keys = [];
-      for (let i = 0; i < meta.n; i++) keys.push(KEY + "_" + meta.g + "_" + i);
-      const out = {};
-      let batches = [], pending;
-      for (let i = 0; i < keys.length; i += 20) batches.push(keys.slice(i, i + 20));
-      pending = batches.length;
-      let bad = false;
-      batches.forEach(b => cloud.getItems(b, (e, vals) => {
-        if (e || !vals) bad = true; else Object.assign(out, vals);
-        if (--pending) return;
-        if (bad) return cb(undefined);
-        const raw = keys.map(k => out[k] || "").join("");
-        try { cb(JSON.parse(raw)); } catch(x){ cb(undefined); }
-      }));
-    });
-  } catch(e){ cb(undefined); }
+/* чтение облака. Перебираем всё, что там лежит: обе части-комплекта (a и b)
+   и старый одиночный ключ, и берём самую свежую непустую копию. Так данные
+   найдутся, даже если указатель _meta битый или его записала другая версия. */
+const cloudCall = fn => new Promise(res => {
+  try { fn((e, v) => res(e ? { err:e } : { v })); } catch(x){ res({ err:x }); }
+});
+const parseState = raw => { try { const s = JSON.parse(raw); return s && s.subjects ? s : null; } catch(e){ return null; } };
+const richness = s => s ? (s.subjects || []).length + (s.lessons || []).length + (s.dayNotes || []).length : 0;
+let cloudInfo = "";
+async function readCloudAsync(){
+  const k = await cloudCall(cb => cloud.getKeys(cb));
+  if (k.err){ cloudInfo = "облако Telegram не ответило"; return undefined; }
+  const keys = k.v || [];
+  const has = x => keys.indexOf(x) >= 0;
+  const getMany = async list => {
+    const out = {};
+    for (let i = 0; i < list.length; i += 20){
+      const r = await cloudCall(cb => cloud.getItems(list.slice(i, i + 20), cb));
+      if (r.err) return null;
+      Object.assign(out, r.v || {});
+    }
+    return out;
+  };
+  let meta = null;
+  if (has(KEY + "_meta")){
+    const r = await cloudCall(cb => cloud.getItem(KEY + "_meta", cb));
+    try { meta = r.err ? null : JSON.parse(r.v); } catch(e){}
+  }
+  const cands = [];
+  for (const g of ["a", "b"]){
+    let n = meta && meta.g === g && meta.n ? meta.n : 0;
+    if (!n) while (has(KEY + "_" + g + "_" + n)) n++;
+    if (!n) continue;
+    const list = [];
+    for (let i = 0; i < n; i++) list.push(KEY + "_" + g + "_" + i);
+    if (!list.every(has)) continue;
+    const out = await getMany(list);
+    const st = out && parseState(list.map(x => out[x] || "").join(""));
+    if (st) cands.push({ s:st, g });
+  }
+  if (has(KEY)){
+    const r = await cloudCall(cb => cloud.getItem(KEY, cb));
+    const st = r.err ? null : parseState(r.v);
+    if (st) cands.push({ s:st });
+  }
+  const full = cands.filter(c => richness(c.s) > 0);
+  cloudInfo = "в облаке Telegram ключей: " + keys.length + ", целых копий: " + full.length;
+  if (!cands.length) return null;
+  const pick = (full.length ? full : cands).sort((x, y) => (y.s.updated || 0) - (x.s.updated || 0))[0];
+  if (pick.g) cloudGen = pick.g;
+  return pick.s;
 }
+function readCloud(cb){ readCloudAsync().then(cb, () => cb(undefined)); }
 function updateSyncNote(){
   const el = document.getElementById("syncNote");
   if (el) el.textContent = syncPending ? "Сохранено на устройстве, синхронизация ждёт сети" : "";
@@ -681,21 +709,27 @@ function load(cb){
   const local = readLocal();
   if (local){ booted = true; cb(local); }
   if (!cloud){ if (!local) cb(null); return; }
-  readCloud(remote => {
-    /* undefined — облако не ответило; null — там пусто */
+  let tries = 0;
+  const attempt = () => readCloud(remote => {
+    /* undefined — облако не ответило; null — там пусто.
+       Если на устройстве ничего нет, а облако молчит — пробуем ещё,
+       а не показываем пустое приложение сразу */
+    if (remote === undefined && !booted && ++tries < 4) return setTimeout(attempt, 700 * tries);
     if (remote === undefined) remote = null;
     if (!booted){ booted = true; return cb(remote); }
     const mine = state ? (state.updated || 0) : 0;
     const theirs = remote ? (remote.updated || 0) : 0;
-    if (remote && theirs > mine && intro.hidden){
-      /* на другом устройстве данные свежее — подхватываем */
-      state = remote;
+    if (remote && richness(remote) > 0 && (theirs > mine || richness(state) === 0)){
+      /* на другом устройстве данные свежее (или здесь пусто) — подхватываем */
+      state = remote; state.onboarded = true;
       writeLocal(JSON.stringify(remote));
+      if (!intro.hidden){ intro.hidden = true; app.hidden = false; }
       renderAll();
     } else if (mine > theirs){
       pushCloud();
     }
   });
+  attempt();
 }
 let saveTimer = null;
 
@@ -1088,7 +1122,27 @@ function renderIntro(){
       '<div class="intro-body">' +
         '<button class="primary" id="introStart" style="margin-top:4px">Начать настройку</button>' +
         '<button class="ghost" id="introSkip">Пропустить и заполнить позже</button>' +
+        (cloud ? '<button class="ghost" id="introRestore">Уже пользовались? Подтянуть данные</button>' +
+          '<p class="hint" id="restoreHint" style="text-align:center">' + esc(cloudInfo) + '</p>' : "") +
       '</div>';
+    const rb = document.getElementById("introRestore");
+    if (rb) rb.onclick = () => {
+      buzz("light");
+      const h = document.getElementById("restoreHint");
+      h.textContent = "Ищу копию в Telegram…";
+      readCloud(remote => {
+        if (remote && richness(remote) > 0){
+          state = remote; state.onboarded = true;
+          writeLocal(JSON.stringify(state));
+          intro.hidden = true; app.hidden = false;
+          selectedDay = todayIdx(); renderAll(); renderNotify(); pushServer(false);
+          buzz("medium");
+        } else {
+          h.textContent = (remote === undefined ? "Облако Telegram не ответило, попробуйте ещё раз. " : "Копии нет: ") + cloudInfo +
+            ". Откройте старую версию приложения, поменяйте что-нибудь (например, тему) и вернитесь сюда.";
+        }
+      });
+    };
     document.getElementById("introStart").onclick = () => { buzz("medium"); introStep = 1; renderIntro(); };
     document.getElementById("introSkip").onclick = () => { buzz("light"); finishIntro(); };
     return;
@@ -3067,7 +3121,7 @@ document.getElementById("resetBtn").onclick = () => {
     '<button class="primary" id="doReset" style="background:linear-gradient(135deg,#FF3B5C,#FF6B4A)">Удалить и настроить заново</button>' +
     '<button class="ghost" id="cancelReset">Отмена</button>', "reset");
   document.getElementById("doReset").onclick = () => {
-    state = emptyState(); save(); closeSheet(); showIntro();
+    allowEmptyPush = true; state = emptyState(); save(); closeSheet(); showIntro();
   };
   document.getElementById("cancelReset").onclick = closeSheet;
 };
