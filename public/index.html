@@ -1,0 +1,3192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Универ</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F2FA;--surface:#FFFFFF;--surface-2:#F7F6FC;
+  --text:#15121F;--text-2:#645C7E;--text-3:#9A93B0;
+  --line:rgba(21,18,31,.08);--line-2:rgba(21,18,31,.05);
+  --violet:#5B3DF5;--pink:#E0349B;--coral:#FF6B4A;
+  --sheet:#FFFFFF;--shade:rgba(14,10,28,.5);
+  --fab-shadow:0 10px 30px rgba(91,61,245,.4);
+  --hero-shadow:0 18px 40px -18px rgba(91,61,245,.55);
+}
+html.night{
+  --bg:#0B0912;--surface:#15121F;--surface-2:#1B1729;
+  --text:#F2F0F8;--text-2:#A79FC0;--text-3:#6E6688;
+  --line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.05);
+  --sheet:#15121F;--shade:rgba(0,0,0,.66);
+  --fab-shadow:0 10px 30px rgba(91,61,245,.5);
+  --hero-shadow:0 18px 44px -20px rgba(0,0,0,.9);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overscroll-behavior-x:none}
+#sheetBody{touch-action:pan-y}
+body{
+  font-family:"Golos Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);color:var(--text);font-size:15px;line-height:1.42;
+  padding-bottom:calc(118px + env(safe-area-inset-bottom));min-height:100vh;overflow-x:hidden;
+}
+button,input,textarea{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--violet);outline-offset:2px;border-radius:10px}
+h1,h2,h3{font-family:"Unbounded","Golos Text",sans-serif;letter-spacing:-.03em}
+[hidden]{display:none!important}
+
+/* ---------------- хиро ---------------- */
+.hero{position:relative;overflow:hidden;background:#3D1FA8;border-radius:0 0 30px 30px;
+  padding:calc(18px + env(safe-area-inset-top)) 20px 30px;color:#fff;box-shadow:var(--hero-shadow)}
+.blob{position:absolute;border-radius:50%;filter:blur(46px);pointer-events:none}
+.b1{width:280px;height:280px;background:var(--violet);top:-110px;left:-60px}
+.b2{width:250px;height:250px;background:var(--pink);top:-40px;right:-90px;opacity:.85}
+.b3{width:230px;height:230px;background:var(--coral);bottom:-140px;left:30%;opacity:.7}
+.hero-in{position:relative;z-index:2}
+.hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+.date{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.78)}
+.theme-btn{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.16);color:#fff;position:relative}
+.hero-tools{position:relative;display:flex;gap:8px}
+.hero-tools .mini-btn{position:absolute;top:44px;right:4px;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
+  background:rgba(255,255,255,.12);color:rgba(255,255,255,.8)}
+.hero-tools .mini-btn:active,.theme-btn:active{transform:scale(.94)}
+.theme-btn.off{color:rgba(255,255,255,.6)}
+.theme-btn .bdot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#7CFFB2;box-shadow:0 0 0 2px #4A26C2}
+.theme-btn .bdot.err{background:#FF6B4A}
+.status{display:inline-flex;align-items:center;gap:7px;margin:0 0 10px;font-size:12.5px;font-weight:600;
+  color:rgba(255,255,255,.88);background:rgba(255,255,255,.15);padding:5px 11px;border-radius:999px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#7CFFB2;box-shadow:0 0 0 0 rgba(124,255,178,.7);animation:live 1.8s infinite}
+@keyframes live{70%{box-shadow:0 0 0 8px rgba(124,255,178,0)}100%{box-shadow:0 0 0 0 rgba(124,255,178,0)}}
+.hero h1{margin:0;font-size:31px;font-weight:700;line-height:1.05;overflow-wrap:anywhere}
+.hero-meta{display:flex;align-items:center;gap:9px;margin-top:12px;font-size:13.5px;color:rgba(255,255,255,.82);flex-wrap:wrap}
+.tag{background:rgba(255,255,255,.18);border-radius:9px;padding:4px 10px;font-weight:600;color:#fff;font-size:12.5px}
+.bar{height:5px;border-radius:999px;background:rgba(255,255,255,.24);margin-top:20px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px;background:#fff;width:0;transition:width 1.1s cubic-bezier(.3,.8,.3,1)}
+.bar-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:rgba(255,255,255,.72)}
+.bar-labels b{font-weight:600;color:#fff}
+
+/* ---------------- общее ---------------- */
+.wrap{padding:0 16px}
+.day-pill{display:flex;align-items:center;gap:11px;width:100%;background:var(--surface);border-radius:18px;
+  padding:15px 16px;margin:-20px 0 22px;position:relative;z-index:5;box-shadow:0 8px 24px -12px rgba(21,18,31,.28)}
+html.night .day-pill{box-shadow:0 8px 24px -14px #000;border:1px solid var(--line)}
+.day-pill .ic{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--violet),var(--pink));display:grid;place-items:center;color:#fff;flex:none}
+.day-pill .label{flex:1;text-align:left;font-weight:600;font-size:15px}
+.day-pill .label small{display:block;font-weight:400;font-size:12.5px;color:var(--text-3)}
+.badge{min-width:26px;height:26px;padding:0 8px;border-radius:999px;flex:none;background:var(--violet);color:#fff;font-size:12.5px;font-weight:600;display:grid;place-items:center}
+.badge.zero{background:var(--surface-2);color:var(--text-3)}
+.sec-head{display:flex;align-items:center;gap:10px;margin:0 2px 12px}
+.sec-head h2{margin:0;font-size:19px;font-weight:600;flex:1}
+.add-btn{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--violet);background:var(--surface);border-radius:11px;padding:7px 11px}
+html.night .add-btn{background:var(--surface-2)}
+.add-btn:active{transform:scale(.97)}
+.card{background:var(--surface);border-radius:22px;overflow:hidden;margin-bottom:26px}
+html.night .card{border:1px solid var(--line)}
+
+/* ---------------- предметы ---------------- */
+.thead{display:grid;grid-template-columns:1fr 1fr 56px 20px;gap:10px;padding:14px 16px 6px;font-size:11.5px;color:var(--text-3)}
+.thead div:nth-child(3){text-align:center}
+.subject{position:relative}
+.subject + .subject .trow::before{content:"";position:absolute;left:16px;right:16px;top:0;height:1px;background:var(--line-2)}
+.trow{display:grid;grid-template-columns:minmax(0,1fr) 56px 20px;grid-template-areas:"n r c" "t r c";column-gap:10px;row-gap:3px;align-items:center;width:100%;text-align:left;padding:13px 16px;position:relative}
+.trow .s-name{grid-area:n}.trow .s-teacher{grid-area:t;padding-left:15px}.trow .s-room{grid-area:r}.trow .chev{grid-area:c}
+.thead{grid-template-columns:minmax(0,1fr) 56px 20px!important}
+.thead div:nth-child(2){display:none}
+.w-wide{display:none}
+@media (min-width:560px){
+  .trow{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 56px 20px;grid-template-areas:"n t r c"}
+  .trow .s-teacher{padding-left:0}
+  .thead{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 56px 20px!important}
+  .thead div:nth-child(2){display:block}
+  .w-wide{display:inline}.w-narrow{display:none}
+}
+.trow:active{background:var(--surface-2)}
+.s-name{font-weight:600;font-size:14.5px;display:flex;align-items:center;gap:7px;overflow-wrap:break-word;word-break:normal;hyphens:manual;min-width:0}
+.s-name .nm{min-width:0;overflow-wrap:break-word}
+.dot{width:8px;height:8px;border-radius:3px;flex:none}
+.s-teacher{font-size:12.5px;color:var(--text-2);overflow-wrap:break-word;word-break:normal;min-width:0}
+.s-room{font-size:12.5px;font-weight:600;text-align:center;border-radius:8px;padding:4px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chev{color:var(--text-3);transition:transform .2s ease;display:grid;place-items:center}
+.subject.open .chev{transform:rotate(90deg)}
+.subject.open{background:var(--surface-2)}
+.count{font-size:11.5px;font-weight:600;color:var(--text-3)}
+.panel{display:none;padding:0 16px 16px}
+.subject.open .panel{display:block;animation:drop .22s ease}
+@keyframes drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* ---------------- заметки ---------------- */
+.notes{display:flex;flex-direction:column;gap:8px;margin-bottom:11px}
+.note{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border-radius:14px;padding:11px 12px;font-size:14px}
+html.night .note{background:#100E1A}
+.note p{margin:0;flex:1;overflow-wrap:anywhere}
+.note time{display:block;font-size:11.5px;color:var(--text-3);margin-top:4px}
+.note .del{color:var(--text-3);padding:2px;flex:none}
+.empty{font-size:13px;color:var(--text-3);padding:4px 0 12px;margin:0}
+.empty-box{padding:6px 16px 20px;text-align:center}
+.empty-box p{margin:0 0 14px;font-size:13.5px;color:var(--text-3)}
+.composer{display:flex;gap:8px;align-items:flex-end}
+.composer textarea{flex:1;resize:none;background:var(--surface-2);border:0;border-radius:14px;padding:11px 13px;font-size:14px;min-height:42px;max-height:130px}
+.subject.open .composer textarea,.slot.open .composer textarea{background:var(--surface)}
+html.night .composer textarea,html.night .subject.open .composer textarea,html.night .slot.open .composer textarea{background:#100E1A}
+.composer textarea::placeholder{color:var(--text-3)}
+.icon-btn{width:42px;height:42px;flex:none;border-radius:14px;display:grid;place-items:center;background:var(--surface-2);color:var(--text-2)}
+.subject.open .icon-btn,.slot.open .icon-btn{background:var(--surface)}
+html.night .icon-btn,html.night .subject.open .icon-btn,html.night .slot.open .icon-btn{background:#100E1A}
+.icon-btn.solid,html.night .icon-btn.solid,.subject.open .icon-btn.solid,.slot.open .icon-btn.solid{background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff}
+.icon-btn.rec{background:linear-gradient(140deg,#FF3B5C,#FF6B4A);color:#fff}
+.icon-btn:active{transform:scale(.94)}
+.ghost-link{font-size:13px;font-weight:500;color:var(--text-3);padding:12px 0 2px;display:block;text-align:left}
+
+/* ---------------- расписание ---------------- */
+.week-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 16px 0}
+.week-nav .plate{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:9px 14px;border-radius:15px;background:var(--surface-2);line-height:1.15}
+html.night .week-nav .plate{background:#141120}
+.week-nav .plate b{font-family:"Unbounded",system-ui,sans-serif;font-size:14.5px;font-weight:600;
+  letter-spacing:-.01em;color:var(--text-1)}
+.week-nav .plate i{font-style:normal;font-size:11.5px;color:var(--text-3);letter-spacing:.01em}
+.week-nav .plate.now{background:linear-gradient(135deg,var(--violet),var(--pink));
+  box-shadow:0 8px 22px -12px var(--violet)}
+.week-nav .plate.now b,.week-nav .plate.now i{color:#fff}
+.week-nav .plate.now i{color:rgba(255,255,255,.8)}
+.week-nav .wk{width:34px;height:34px;flex:none;border-radius:12px;display:grid;place-items:center;color:var(--text-3);background:var(--surface-2)}
+html.night .week-nav .wk{background:#100E1A}
+.week-nav .wk:active{transform:scale(.92)}
+.imp-row{display:flex;align-items:center;gap:11px;background:var(--surface-2);border-radius:15px;padding:12px 14px;margin-bottom:8px}
+html.night .imp-row{background:#100E1A}
+.imp-row .txt{flex:1;min-width:0}
+.imp-row .txt b{display:block;font-size:14.5px;font-weight:600;overflow-wrap:anywhere}
+.imp-row .txt span{display:block;font-size:12.5px;color:var(--text-3);margin-top:2px;overflow-wrap:anywhere}
+.imp-row .cnt{font-size:12px;font-weight:600;color:var(--text-3);flex:none}
+.loading{text-align:center;padding:30px 0;color:var(--text-3);font-size:14px}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:14px 12px 4px}
+.day{border-radius:15px;padding:9px 0;text-align:center;position:relative}
+.day i{display:block;font-style:normal;font-size:11px;color:var(--text-3);margin-bottom:4px}
+.day b{display:block;font-family:"Unbounded",sans-serif;font-size:15px;font-weight:500;letter-spacing:-.03em}
+.day u{display:block;width:4px;height:4px;border-radius:50%;background:var(--text-3);margin:5px auto 0;opacity:0;text-decoration:none}
+.day.has u{opacity:.6}
+.day.today b{color:var(--violet)}
+.day.sel{background:linear-gradient(150deg,var(--violet),var(--pink))}
+.day.sel i,.day.sel b{color:#fff}
+.day.sel u{background:#fff;opacity:.85}
+.timeline{padding:6px 16px 18px}
+.slot{display:flex;gap:13px;padding:12px 0;position:relative}
+.slot + .slot::before{content:"";position:absolute;left:58px;right:0;top:0;height:1px;background:var(--line-2)}
+.when{width:45px;flex:none;padding-top:2px}
+.when b{display:block;font-family:"Unbounded",sans-serif;font-size:14px;font-weight:500;letter-spacing:-.04em}
+.when em{display:block;font-style:normal;font-size:11.5px;color:var(--text-3);margin-top:2px}
+.lesson{flex:1;min-width:0;border-left:3px solid;padding-left:13px}
+.lesson-head{display:flex;align-items:center;gap:9px;width:100%;text-align:left}
+.lesson-head .nm{font-weight:600;font-size:15px;flex:1;overflow-wrap:anywhere}
+.lesson-head .rm{font-size:12px;font-weight:600;border-radius:7px;padding:3px 8px;flex:none}
+.lesson .meta{font-size:12.5px;color:var(--text-3);margin-top:3px}
+.now-tag{font-size:11px;font-weight:600;color:#fff;background:var(--coral);border-radius:6px;padding:2px 7px;margin-right:7px}
+.lesson .panel{display:none;padding:12px 0 0}
+.slot.open .lesson .panel{display:block;animation:drop .22s ease}
+
+/* ---------------- две равные кнопки действий ---------------- */
+.actions{
+  position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));
+  z-index:40;display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.act{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  background:var(--surface);border-radius:19px;padding:14px 8px;
+  font-weight:600;font-size:14px;letter-spacing:-.01em;
+  box-shadow:0 10px 28px -12px rgba(21,18,31,.4);
+  transition:transform .14s ease;
+}
+html.night .act{border:1px solid var(--line);box-shadow:0 10px 28px -14px #000}
+.act:active{transform:scale(.97)}
+.act .ic{
+  width:30px;height:30px;border-radius:11px;flex:none;display:grid;place-items:center;
+  color:#fff;background:linear-gradient(135deg,var(--violet),var(--pink));
+}
+.act .lb{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act.on{background:linear-gradient(135deg,#FF3B5C,#FF6B4A);color:#fff;animation:pulse 1.6s ease-in-out infinite}
+.act.on .ic{background:rgba(255,255,255,.22)}
+@keyframes pulse{0%,100%{box-shadow:0 10px 28px -12px rgba(255,59,92,.6)}50%{box-shadow:0 10px 34px -6px rgba(255,59,92,.45)}}
+
+.pick{display:flex;flex-direction:column;gap:9px;margin-bottom:6px}
+.pick-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  background:var(--surface-2);border-radius:17px;padding:13px 14px;color:var(--text-3)}
+html.night .pick-row{background:#141120}
+.pick-row:active{transform:scale(.985)}
+.pick-row .ic{width:38px;height:38px;flex:none;border-radius:13px;display:grid;place-items:center;color:#fff}
+.pick-row .ic.day{background:linear-gradient(135deg,#F5A623,#FF6B4A)}
+.pick-row .ic.subj{background:linear-gradient(135deg,var(--violet),var(--pink))}
+.pick-row .ic.les{background:linear-gradient(135deg,#2D8CFF,#00B3A4)}
+.pick-row .ic.new{background:var(--text-3)}
+.pick-row .ic.date,.pick-row .ic.time{background:var(--surface);color:var(--text-1)}
+html.night .pick-row .ic.date,html.night .pick-row .ic.time{background:#1C1828}
+.pick-row .ic.date b{font-size:15px;font-weight:600}
+.pick-row .ic.time b{font-size:11.5px;font-weight:600;letter-spacing:-.02em}
+.pick-row .dot{width:11px;height:11px;flex:none;border-radius:50%;margin:0 13px 0 6px}
+.pick-row .tx{flex:1;min-width:0}
+.pick-row .tx b{display:block;font-size:14.5px;font-weight:600;color:var(--text-1);
+  letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick-row .tx i{display:block;font-style:normal;font-size:12px;color:var(--text-3);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ghost-link.back{display:flex;width:100%;justify-content:flex-start;align-items:center;gap:5px;margin:0 0 12px;padding:0;
+  font-size:13px;color:var(--text-3)}
+.ghost-link.back svg{width:15px;height:15px}
+/* ---------------- переключатель вида и матрица ---------------- */
+@keyframes swl{from{opacity:.3;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes swr{from{opacity:.3;transform:translateX(-28px)}to{opacity:1;transform:none}}
+#sheetBody.sw-l{animation:swl .22s ease}#sheetBody.sw-r{animation:swr .22s ease}
+.swipe-hint{text-align:center;font-size:11.5px;color:var(--text-3);margin:-8px 0 12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--surface-2);border-radius:14px;padding:4px;margin:0 0 16px}
+html.night .seg{background:#100E1A}
+.seg button{padding:9px 6px;border-radius:11px;font-size:13.5px;font-weight:600;color:var(--text-3);transition:background .16s ease,color .16s ease}
+.seg button.on{background:var(--sheet);color:var(--text-1);box-shadow:0 2px 8px -4px rgba(21,18,31,.35)}
+html.night .seg button.on{background:#231E33}
+
+.unsorted{background:var(--surface-2);border-radius:16px;padding:12px 13px;margin-bottom:12px}
+html.night .unsorted{background:#100E1A}
+.unsorted .ulabel{margin:0 0 9px;font-size:12px;color:var(--text-3)}
+.uchip{display:inline-block;max-width:100%;background:var(--sheet);border-radius:10px;padding:7px 11px;
+  margin:0 6px 6px 0;font-size:13px;font-weight:500;text-align:left;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
+html.night .uchip{background:#231E33}
+
+.matrix{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:6px}
+.quad{position:relative;background:var(--surface-2);border-radius:17px;padding:12px 11px 40px;
+  border-top:3px solid var(--qc);min-height:132px}
+html.night .quad{background:#100E1A}
+.qhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;margin-bottom:9px}
+.qhead b{font-size:12.5px;font-weight:600;letter-spacing:-.01em;color:var(--qc);flex:1 0 auto;line-height:1.2}
+.qhead i{display:block;width:100%;font-style:normal;font-size:11px;font-weight:500;color:var(--text-2);margin-top:3px}
+.qn{position:absolute;top:11px;right:11px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;
+  background:var(--qc);color:#fff;font-size:11px;font-weight:600;display:grid;place-items:center}
+.qlist{display:flex;flex-direction:column;gap:5px}
+.matrix .qlist{max-height:188px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;margin:0 -3px;padding:0 3px}
+.matrix .qlist::-webkit-scrollbar{display:none}
+.matrix .qlist.more{-webkit-mask-image:linear-gradient(#000 calc(100% - 26px),transparent);
+  mask-image:linear-gradient(#000 calc(100% - 26px),transparent)}
+.matrix .qlist.top{-webkit-mask-image:linear-gradient(transparent,#000 18px);mask-image:linear-gradient(transparent,#000 18px)}
+.matrix .qlist.top.more{-webkit-mask-image:linear-gradient(transparent,#000 18px,#000 calc(100% - 26px),transparent);
+  mask-image:linear-gradient(transparent,#000 18px,#000 calc(100% - 26px),transparent)}
+.qnote{position:relative;background:var(--sheet);border-radius:11px;padding:2px}
+html.night .qnote{background:#231E33}
+.qnote.done{opacity:.5}
+.qnote.done .qtitle{text-decoration:line-through}
+.qtick{position:absolute;top:8px;left:8px;margin:0;z-index:1;width:16px;height:16px;border-radius:5px;border:1.6px solid var(--line);
+  display:grid;place-items:center;color:transparent}
+.qtick.on{background:var(--qc);border-color:var(--qc);color:#fff}
+.qtick svg{width:10px;height:10px}
+.qtitle{display:block;width:100%;text-align:left;padding:6px 7px 6px 28px;font-size:12.5px;line-height:1.3;
+  font-weight:500;overflow-wrap:anywhere}
+.qtitle .chev{display:inline-block;width:11px;height:11px;margin-left:3px;color:var(--text-3);vertical-align:-1px}
+.qtitle .chev svg{width:11px;height:11px}
+.qnote.open .chev{transform:rotate(90deg)}
+.qbody{padding:0 8px 9px 28px;font-size:12px;line-height:1.45;color:var(--text-2);white-space:pre-wrap;overflow-wrap:anywhere}
+.qacts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.qacts button{white-space:nowrap;font-size:11px;font-weight:600;color:var(--violet);
+  background:var(--surface-2);border-radius:8px;padding:5px 8px}
+html.night .qacts button{background:#100E1A}
+.qacts button[data-del]{color:var(--text-3)}
+.qempty{margin:0;font-size:12px;color:var(--text-3)}
+.qadd{position:absolute;left:11px;bottom:10px;width:26px;height:26px;border-radius:9px;
+  background:var(--sheet);color:var(--qc);display:grid;place-items:center}
+html.night .qadd{background:#231E33}
+.qadd svg{width:15px;height:15px}
+.qadd:active{transform:scale(.9)}
+.nbody{display:block;font-size:12.5px;color:var(--text-3);margin-top:3px;white-space:pre-wrap}
+textarea.field{resize:none;font-family:inherit;line-height:1.45}
+.mx-demo{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px}
+.mx-demo div{background:var(--surface-2);border-top:3px solid var(--qc);border-radius:12px;padding:9px 10px}
+html.night .mx-demo div{background:#100E1A}
+.mx-demo b{display:block;font-size:11.5px;font-weight:600;color:var(--qc)}
+.mx-demo i{display:block;font-style:normal;font-size:10px;color:var(--text-3);margin-top:2px}
+.quad.drop{background:color-mix(in srgb,var(--qc) 16%,var(--surface-2));outline:2px dashed var(--qc);outline-offset:-2px}
+html.night .quad.drop{background:color-mix(in srgb,var(--qc) 22%,#100E1A)}
+.qnote.lift{opacity:.35}
+.qnote.ghost{box-shadow:0 16px 34px -10px rgba(21,18,31,.45);transform:scale(1.04);opacity:.96}
+html.night .qnote.ghost{box-shadow:0 16px 34px -12px #000}
+body.dragging{user-select:none;-webkit-user-select:none}
+body.dragging .sheet{overflow:hidden}
+.donetgl{display:flex;align-items:center;gap:7px;width:100%;justify-content:center;
+  background:var(--surface-2);border-radius:12px;padding:9px 12px;margin:-6px 0 14px;
+  font-size:12.5px;font-weight:600;color:var(--text-3)}
+html.night .donetgl{background:#100E1A}
+.donetgl.on{color:var(--violet)}
+.donetgl span{background:var(--sheet);border-radius:999px;padding:1px 7px;font-size:11px}
+html.night .donetgl span{background:#231E33}
+.mhint{margin:10px 2px 2px;font-size:11.5px;color:var(--text-3);text-align:center}
+.sheet.full{max-height:96vh;height:96vh}
+.sheet.full #sheetBody{display:flex;flex-direction:column;min-height:calc(96vh - 46px)}
+.sheet.full #sheetBody .fulllist{flex:1;align-content:flex-start}
+.sheet.full #sheetBody .primary{margin-top:auto}
+.sheet.full #sheetBody .sub{flex:none}
+.qhead{width:100%;text-align:left;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;margin-bottom:9px}
+.qhead:active{opacity:.6}
+.qhead .exp{display:inline-block;width:12px;height:12px;margin-left:5px;color:var(--text-3);vertical-align:-1px}
+.qtag{display:table;background:color-mix(in srgb,var(--qc) 15%,transparent);color:var(--qc);
+  border-radius:8px;padding:4px 9px;font-size:11.5px;font-weight:600;margin-bottom:9px}
+.qtag.none{background:var(--surface-2);color:var(--text-3)}
+h3.nvt{margin:0 0 10px;font-size:21px;line-height:1.25}
+h3.nvt.done{text-decoration:line-through;color:var(--text-3)}
+.nvbody{background:var(--surface-2);border-radius:14px;padding:13px 14px;font-size:14px;line-height:1.5;
+  color:var(--text-2);white-space:pre-wrap;overflow-wrap:anywhere}
+html.night .nvbody{background:#100E1A}
+.nvtime{margin:10px 2px 16px;font-size:12px;color:var(--text-3)}
+.nvrow{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.nvrow .ghost{margin:0}
+.ghost-link.danger{color:#FF3B5C;margin-top:14px}
+.fulllist{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.fnote{display:flex;align-items:flex-start;gap:10px;background:var(--surface-2);border-radius:15px;padding:12px 13px}
+html.night .fnote{background:#100E1A}
+.fnote.done{opacity:.5}
+.fnote.done .ftx b{text-decoration:line-through}
+.fnote .qtick{position:static;margin:2px 0 0;width:19px;height:19px;flex:none}
+.fnote .qtick svg{width:12px;height:12px}
+.ftx{flex:1;min-width:0;text-align:left}
+.ftx b{display:block;font-size:14.5px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.ftx span{display:block;font-size:12.5px;color:var(--text-3);margin-top:3px;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.uchip.ghost{box-shadow:0 14px 30px -10px rgba(21,18,31,.45);transform:scale(1.05)}
+.uchip.lift{opacity:.35}
+.nvcard{background:var(--surface-2);border-radius:20px;padding:15px 16px 13px;margin-bottom:14px;
+  border-top:3px solid var(--qc, var(--line))}
+html.night .nvcard{background:#100E1A}
+.nvtop{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.nvtop .qtag{margin:0}
+.nvtick{width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--qc, var(--text-3));
+  display:grid;place-items:center;color:transparent;transition:background .15s ease}
+.nvtick.on{background:var(--qc, var(--violet));border-color:var(--qc, var(--violet));color:#fff}
+.nvtick svg{width:14px;height:14px}
+.nvtick:active{transform:scale(.9)}
+.nvcard h3.nvt{margin:0 0 10px;font-size:20px;line-height:1.28;overflow-wrap:anywhere}
+.nvcard.done h3.nvt{text-decoration:line-through;color:var(--text-3)}
+.nvcard .nvbody{background:none;padding:0;border-radius:0;font-size:14.5px;line-height:1.55;color:var(--text-2)}
+.nvcard.done .nvbody{color:var(--text-3)}
+.nvempty{margin:0;font-size:13px;color:var(--text-3)}
+.nvcard .nvtime{margin:12px 0 0}
+.sheet .nvcard textarea{display:block;width:100%;border:0;outline:0;background:transparent;resize:none;
+  padding:0;margin:0;font-family:inherit;color:inherit;overflow:hidden;min-height:0;border-radius:0;font-size:inherit}
+.sheet .nvcard textarea.nvt{font-family:"Unbounded",system-ui,sans-serif;font-size:20px;font-weight:600;
+  line-height:1.28;letter-spacing:-.01em;color:var(--text-1);margin-bottom:10px}
+.sheet .nvcard textarea.nvbody{font-size:14.5px;line-height:1.55;color:var(--text-2);min-height:44px;border-radius:0}
+.sheet .nvcard textarea::placeholder{color:var(--text-3)}
+.sheet .nvcard textarea:focus{background:color-mix(in srgb,var(--qc, var(--violet)) 7%,transparent);
+  border-radius:8px;box-shadow:0 0 0 6px color-mix(in srgb,var(--qc, var(--violet)) 7%,transparent)}
+.sheet .nvcard.done textarea.nvt{text-decoration:line-through;color:var(--text-3)}
+.sheet .nvcard.done textarea.nvbody{color:var(--text-3)}
+.notify{background:var(--surface-2);border-radius:18px;padding:15px 16px 13px;margin:4px 0 12px}
+html.night .notify{border:1px solid var(--line)}
+.nrow{display:flex;align-items:center;gap:12px}
+.nic{width:36px;height:36px;border-radius:12px;flex:none;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(135deg,#F5A623,#FF6B4A)}
+.ntx{flex:1;min-width:0}
+.ntx b{display:block;font-size:15px;font-weight:600}
+.ntx i{display:block;font-style:normal;font-size:12px;color:var(--text-3);margin-top:1px}
+.switch{width:48px;height:29px;flex:none;border-radius:999px;background:var(--line);position:relative;transition:background .18s ease}
+.switch span{position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .18s ease}
+.switch.on{background:linear-gradient(135deg,var(--violet),var(--pink))}
+.switch.on span{transform:translateX(19px)}
+.nstat{margin:10px 0 0;font-size:12.5px;line-height:1.45;color:var(--text-3)}
+.nstat.err{color:#E0344B}
+.nstat.ok{color:#00A392;font-weight:600}
+.ntest{margin-top:10px;font-size:13px;font-weight:600;color:var(--violet);padding:0}
+.ntest:disabled{color:var(--text-3)}
+/* плашки матрицы не выделяются долгим нажатием */
+.matrix, .quad, .qnote, .qtitle, .uchip, .unsorted{
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+body.dragging, body.dragging *{-webkit-user-select:none!important;user-select:none!important;cursor:grabbing}
+/* ---------------- лист ---------------- */
+.shade{position:fixed;inset:0;background:var(--shade);z-index:110;opacity:0;pointer-events:none;transition:opacity .22s ease}
+.shade.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:120;background:var(--sheet);border-radius:28px 28px 0 0;
+  padding:10px 18px calc(20px + env(safe-area-inset-bottom));transform:translateY(103%);
+  transition:transform .3s cubic-bezier(.22,.72,.28,1);max-height:88vh;overflow-y:auto}
+.sheet.on{transform:translateY(0)}
+.grip{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 16px}
+.sheet h3{margin:0 0 5px;font-size:21px;font-weight:600}
+.sheet .sub{font-size:13px;color:var(--text-3);margin:0 0 16px}
+.sheet .note{background:var(--surface-2)}
+html.night .sheet .note{background:#100E1A}
+.sheet textarea{width:100%;background:var(--surface-2);border:0;border-radius:16px;padding:14px;font-size:15px;min-height:100px;resize:none}
+html.night .sheet textarea{background:#100E1A}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 2px}
+.chip{border-radius:999px;padding:8px 13px;font-size:13px;font-weight:500;background:var(--surface-2);color:var(--text-2)}
+html.night .chip{background:#100E1A}
+.chip.on{background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff}
+.chip-label{font-size:12px;color:var(--text-3);margin:18px 0 0}
+.primary{width:100%;border-radius:17px;padding:16px;font-weight:600;font-size:15px;margin-top:18px;
+  background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff}
+.primary:disabled{opacity:.35}
+.ghost{width:100%;padding:13px;color:var(--text-3);font-weight:500;font-size:14px;margin-top:4px}
+.field{width:100%;background:var(--surface-2);border:0;border-radius:15px;padding:14px;font-size:15px;margin-bottom:9px}
+html.night .field{background:#100E1A}
+.field-row{display:flex;gap:9px}
+.swatch{width:36px;height:36px;border-radius:12px;padding:0}
+.wave{display:flex;align-items:flex-end;justify-content:center;gap:4px;height:40px;margin:6px 0 12px}
+.wave i{width:4px;border-radius:2px;background:linear-gradient(180deg,var(--pink),var(--violet));animation:bar .95s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.1s}.wave i:nth-child(3){animation-delay:.22s}
+.wave i:nth-child(4){animation-delay:.32s}.wave i:nth-child(5){animation-delay:.16s}
+.wave i:nth-child(6){animation-delay:.26s}.wave i:nth-child(7){animation-delay:.06s}
+@keyframes bar{0%,100%{height:8px}50%{height:32px}}
+.hint{font-size:12.5px;color:var(--text-3);margin-top:12px;line-height:1.45}
+.tick{width:22px;height:22px;flex:none;border-radius:8px;background:var(--surface);display:grid;place-items:center;color:transparent;margin-top:1px}
+html.night .tick{background:#0B0912}
+.tick.on{background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff}
+.note.done p{opacity:.4;text-decoration:line-through}
+.foot{text-align:center;padding:4px 0 26px}
+.foot button{font-size:12.5px;color:var(--text-3)}
+#syncNote{font-size:11.5px;color:var(--text-3);margin:0 0 6px;text-align:center;opacity:.75}
+#syncNote:empty{display:none}
+
+/* ---------------- первый запуск ---------------- */
+.intro{position:fixed;inset:0;z-index:90;background:var(--bg);overflow-y:auto;
+  padding:0 0 calc(30px + env(safe-area-inset-bottom))}
+.intro-hero{position:relative;overflow:hidden;background:#3D1FA8;color:#fff;
+  padding:calc(30px + env(safe-area-inset-top)) 22px 34px;border-radius:0 0 30px 30px}
+.intro-hero .in{position:relative;z-index:2}
+.intro-hero h1{margin:0 0 12px;font-size:32px;font-weight:700;line-height:1.08}
+.intro-hero p{margin:0;font-size:15px;color:rgba(255,255,255,.82);max-width:30ch}
+.intro-body{padding:24px 18px 0}
+.steps{display:flex;gap:6px;margin-bottom:20px}
+.steps i{height:3px;flex:1;border-radius:2px;background:var(--line)}
+.steps i.on{background:linear-gradient(90deg,var(--violet),var(--pink))}
+.intro h2{margin:0 0 6px;font-size:22px;font-weight:600}
+.intro .lead{margin:0 0 20px;font-size:14px;color:var(--text-3);line-height:1.5}
+.two-up{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.up{background:var(--surface);border-radius:20px;padding:16px 14px;text-align:left;display:block}
+html.night .up{border:1px solid var(--line)}
+.up .ic{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(135deg,var(--violet),var(--pink));margin-bottom:11px}
+.up b{display:block;font-size:14.5px;font-weight:600;letter-spacing:-.01em}
+.up span{display:block;font-size:12px;color:var(--text-3);margin-top:3px;overflow-wrap:anywhere}
+.up.live .ic{background:linear-gradient(135deg,#FF3B5C,#FF6B4A)}
+.up:active{transform:scale(.98)}
+.mic-cta{display:flex;align-items:center;gap:13px;width:100%;text-align:left;
+  background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border-radius:20px;padding:16px 18px;margin-bottom:8px}
+.mic-cta.live{background:linear-gradient(135deg,#FF3B5C,#FF6B4A)}
+.mic-cta .ring{width:44px;height:44px;border-radius:16px;background:rgba(255,255,255,.2);display:grid;place-items:center;flex:none}
+.mic-cta b{display:block;font-size:15px;font-weight:600}
+.mic-cta span{display:block;font-size:12.5px;color:rgba(255,255,255,.8);margin-top:2px}
+.heard{background:var(--surface);border-radius:16px;padding:13px 15px;font-size:14px;margin-bottom:14px;color:var(--text-2)}
+.heard b{display:block;font-size:11.5px;color:var(--text-3);font-weight:500;margin-bottom:4px}
+.added{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.added-item{display:flex;align-items:center;gap:11px;background:var(--surface);border-radius:16px;padding:13px 15px}
+html.night .added-item{border:1px solid var(--line)}
+.added-item .txt{flex:1;min-width:0}
+.added-item .txt b{display:block;font-size:14.5px;font-weight:600;overflow-wrap:anywhere}
+.added-item .txt span{display:block;font-size:12.5px;color:var(--text-3);margin-top:1px;overflow-wrap:anywhere}
+.added-item .del{color:var(--text-3);padding:4px;flex:none}
+.form-card{background:var(--surface);border-radius:20px;padding:16px;margin-bottom:14px}
+html.night .form-card{border:1px solid var(--line)}
+.form-card .field{background:var(--surface-2)}
+html.night .form-card .field{background:#100E1A}
+.form-card .field:last-of-type{margin-bottom:0}
+.row-mic{display:flex;gap:9px;align-items:center;margin-top:12px}
+.row-mic .primary{margin-top:0;flex:1}
+.or{text-align:center;font-size:12.5px;color:var(--text-3);margin:14px 0}
+
+/* ---------------- разбор диктовки ---------------- */
+.rv{background:var(--surface-2);border-radius:18px;padding:14px;margin-bottom:10px}
+html.night .rv{background:#100E1A}
+.rv-head{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.rv-tag{font-size:11.5px;font-weight:600;border-radius:8px;padding:4px 9px}
+.rv-head .del{margin-left:auto;color:var(--text-3);padding:4px;flex:none}
+.rv .field{background:var(--sheet);margin-bottom:8px}
+html.night .rv .field{background:#1B1729}
+.rv .field:last-child{margin-bottom:0}
+.rv textarea{width:100%;background:var(--sheet);border:0;border-radius:14px;padding:12px 13px;
+  font-size:14.5px;min-height:66px;resize:none;margin-bottom:9px;line-height:1.4}
+html.night .rv textarea{background:#1B1729}
+select.field{appearance:none;-webkit-appearance:none;background-image:none}
+.asr-box:empty:before{content:attr(data-ph);color:var(--text-3)}
+.asr-box{background:var(--surface-2);border-radius:18px;padding:15px;min-height:110px;
+  font-size:15px;color:var(--text);line-height:1.5;margin-bottom:12px}
+html.night .asr-box:empty:before{content:attr(data-ph);color:var(--text-3)}
+.asr-box{background:#100E1A}
+.asr-box:empty::before{content:"Здесь появится то, что вы говорите";color:var(--text-3)}
+.asr-box[contenteditable]:focus{outline:2px solid var(--violet);outline-offset:2px}
+.rv-summary{font-size:13px;color:var(--text-3);margin:0 0 16px}
+</style>
+</head>
+<body>
+
+<div class="intro" id="intro" hidden></div>
+
+<div id="app" hidden>
+  <header class="hero">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+    <div class="hero-in">
+      <div class="hero-top">
+        <span class="date" id="heroDate"></span>
+        <div class="hero-tools">
+          <button class="theme-btn" id="bellBtn" aria-label="Утренняя сводка"></button>
+          <button class="theme-btn" id="themeBtn" aria-label="Сменить тему">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          </button>
+          <button class="mini-btn" id="resetBtn" aria-label="Сбросить все данные">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="heroBody"></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <button class="day-pill" id="dayNotesBtn">
+      <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12l3 3 5-6"/></svg></span>
+      <span class="label">Заметки на день<small id="dayNotesSub">ничего не записано</small></span>
+      <span class="badge zero" id="dayNotesCount">0</span>
+    </button>
+
+    <div class="sec-head">
+      <h2>Предметы</h2>
+      <button class="add-btn" id="addSubjectBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Добавить</button>
+    </div>
+    <section class="card">
+      <div class="thead" id="thead"><div><span class="w-narrow">Предмет и преподаватель</span><span class="w-wide">Предмет</span></div><div>Преподаватель</div><div>Ауд.</div><div></div></div>
+      <div id="subjectList"></div>
+    </section>
+
+    <div class="sec-head">
+      <h2>Расписание</h2>
+      <button class="add-btn" id="addLessonBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Пара</button>
+    </div>
+    <section class="card">
+      <div class="week-nav" id="weekNav"></div>
+      <div class="week" id="week"></div>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+  </div>
+
+  <div class="actions" id="actions">
+    <button class="act" id="recBtn">
+      <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></span>
+      <span class="lb" id="recLabel">Продиктовать</span>
+    </button>
+    <button class="act" id="importBtn">
+      <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg></span>
+      <span class="lb">Загрузить файл</span>
+    </button>
+  </div>
+</div>
+
+<input type="file" id="fileInput" hidden accept=".pdf,.docx,.xlsx,.xls,.csv,.txt">
+<div class="shade" id="shade"></div>
+<div class="sheet" id="sheet"><div class="grip"></div><div id="sheetBody"></div></div>
+
+<script>
+"use strict";
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+if (tg) { tg.ready(); tg.expand && tg.expand(); }
+const buzz = t => { try { tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred(t || "light"); } catch(e){} };
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+/* ---------------- хранилище ---------------- */
+/* Локальная память устройства — основная. Telegram CloudStorage — фоновая
+   синхронизация между устройствами. При плохой связи работает первая. */
+const KEY = "uni_app_v3";
+const mem = {};
+const cloud = tg && tg.CloudStorage && tg.isVersionAtLeast && tg.isVersionAtLeast("6.9") ? tg.CloudStorage : null;
+let syncPending = false;
+let booted = false;
+
+function readLocal(){
+  try {
+    const raw = window.localStorage.getItem(KEY);
+    if (!raw) return null;
+    mem[KEY] = raw;
+    return JSON.parse(raw);
+  } catch(e){ return mem[KEY] ? JSON.parse(mem[KEY]) : null; }
+}
+function writeLocal(raw){
+  mem[KEY] = raw;
+  try { window.localStorage.setItem(KEY, raw); } catch(e){}
+}
+/* Облако Telegram хранит не больше 4096 символов в одном ключе, а расписание
+   после импорта весит в разы больше. Поэтому данные режутся на части.
+   Пишем в запасной комплект ключей, и только когда все части легли —
+   переключаем указатель (_meta). Так в облаке всегда лежит целая копия. */
+const CHUNK = 3800;
+let cloudGen = "a", cloudBusy = false, cloudAgain = false;
+function pushCloud(){
+  if (!cloud || !mem[KEY]) return;
+  if (cloudBusy){ cloudAgain = true; return; }
+  cloudBusy = true; cloudAgain = false;
+  const raw = mem[KEY];
+  const parts = [];
+  for (let i = 0; i < raw.length; i += CHUNK) parts.push(raw.slice(i, i + CHUNK));
+  const gen = cloudGen === "a" ? "b" : "a";
+  const finish = ok => {
+    syncPending = !ok; updateSyncNote();
+    cloudBusy = false;
+    if (cloudAgain) pushCloud();
+  };
+  if (parts.length > 400) return finish(false);
+  let left = parts.length, failed = false;
+  try {
+    parts.forEach((p, i) => cloud.setItem(KEY + "_" + gen + "_" + i, p, err => {
+      if (err) failed = true;
+      if (--left) return;
+      if (failed) return finish(false);
+      const meta = JSON.stringify({ g:gen, n:parts.length, updated:(state && state.updated) || Date.now() });
+      cloud.setItem(KEY + "_meta", meta, err2 => {
+        if (!err2) cloudGen = gen;
+        finish(!err2);
+      });
+    }));
+  } catch(e){ finish(false); }
+}
+/* чтение: сначала указатель, потом все части; для старых версий — один ключ */
+function readCloud(cb){
+  const single = () => cloud.getItem(KEY, (e, v) => {
+    let r = null; try { r = v ? JSON.parse(v) : null; } catch(x){}
+    cb(e ? undefined : r);
+  });
+  try {
+    cloud.getItem(KEY + "_meta", (err, m) => {
+      if (err) return cb(undefined);
+      let meta = null; try { meta = m ? JSON.parse(m) : null; } catch(x){}
+      if (!meta || !meta.n) return single();
+      cloudGen = meta.g;
+      const keys = [];
+      for (let i = 0; i < meta.n; i++) keys.push(KEY + "_" + meta.g + "_" + i);
+      const out = {};
+      let batches = [], pending;
+      for (let i = 0; i < keys.length; i += 20) batches.push(keys.slice(i, i + 20));
+      pending = batches.length;
+      let bad = false;
+      batches.forEach(b => cloud.getItems(b, (e, vals) => {
+        if (e || !vals) bad = true; else Object.assign(out, vals);
+        if (--pending) return;
+        if (bad) return cb(undefined);
+        const raw = keys.map(k => out[k] || "").join("");
+        try { cb(JSON.parse(raw)); } catch(x){ cb(undefined); }
+      }));
+    });
+  } catch(e){ cb(undefined); }
+}
+function updateSyncNote(){
+  const el = document.getElementById("syncNote");
+  if (el) el.textContent = syncPending ? "Сохранено на устройстве, синхронизация ждёт сети" : "";
+}
+
+function load(cb){
+  const local = readLocal();
+  if (local){ booted = true; cb(local); }
+  if (!cloud){ if (!local) cb(null); return; }
+  readCloud(remote => {
+    /* undefined — облако не ответило; null — там пусто */
+    if (remote === undefined) remote = null;
+    if (!booted){ booted = true; return cb(remote); }
+    const mine = state ? (state.updated || 0) : 0;
+    const theirs = remote ? (remote.updated || 0) : 0;
+    if (remote && theirs > mine && intro.hidden){
+      /* на другом устройстве данные свежее — подхватываем */
+      state = remote;
+      writeLocal(JSON.stringify(remote));
+      renderAll();
+    } else if (mine > theirs){
+      pushCloud();
+    }
+  });
+}
+let saveTimer = null;
+
+/* ---------------- утренняя сводка: выжимка для сервера ----------------
+   Сервер знает только расписание и заголовки срочных задач — больше ему
+   для сводки ничего не нужно. Подпись Telegram доказывает, чьи это данные. */
+let serverTimer = null, serverState = { ok:null, error:"" };
+function serverSnapshot(){
+  const today = iso(new Date());
+  return {
+    tz: (Intl.DateTimeFormat().resolvedOptions().timeZone) || "Europe/Moscow",
+    notify: state.notify !== false,
+    subjects: state.subjects.map(x => ({ id:x.id, name:x.name, room:x.room || "" })),
+    lessons: state.lessons.filter(l => !l.date || l.date >= today).map(l => ({
+      date:l.date || "", day:l.day, time:l.time, end:l.end || "", subjectId:l.subjectId, room:l.room || "", kind:l.kind || ""
+    })),
+    urgent: state.dayNotes.filter(n => n.quad === 0 && !n.done).map(n => (n.title || n.text || "").trim()).filter(Boolean)
+  };
+}
+function pushServer(test){
+  if (!(tg && tg.initData)){
+    serverState = { ok:false, error:"Сводка работает, когда приложение открыто из Telegram." };
+    renderNotify();
+    return Promise.resolve(serverState);
+  }
+  return fetch("/api/sync", {
+    method:"POST", headers:{ "content-type":"application/json" },
+    body: JSON.stringify({ initData: tg.initData, snapshot: serverSnapshot(), test: !!test })
+  })
+  .then(r => r.json().catch(() => ({ ok:false, error:"Сервер ответил не так, как ожидалось (HTTP " + r.status + ")" })))
+  .catch(() => ({ ok:false, error:"Нет связи с сервером." }))
+  .then(j => { serverState = { ok:!!j.ok, error:j.error || j.lastError || "" }; renderNotify(); return serverState; });
+}
+function schedulePush(){ clearTimeout(serverTimer); serverTimer = setTimeout(() => pushServer(false), 1500); }
+
+const BELL_ON = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
+const BELL_OFF = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8.7 3A6 6 0 0 1 18 8c0 2.7.6 4.6 1.3 6M17 17H3s3-2 3-9c0-.8.1-1.5.4-2.2"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0M2 2l20 20"/></svg>';
+function renderBell(){
+  const b = document.getElementById("bellBtn");
+  if (!b || !state) return;
+  const on = state.notify !== false;
+  const err = on && serverState.ok === false && serverState.error;
+  b.classList.toggle("off", !on);
+  b.innerHTML = (on ? BELL_ON : BELL_OFF) + (on ? '<i class="bdot' + (err ? " err" : "") + '"></i>' : "");
+}
+function openNotifySheet(){
+  showSheet('<h3>Утренняя сводка</h3>' +
+    '<p class="sub">В дни, когда есть пары, бот в 7:00 по вашему времени пишет в Telegram список всех пар на сегодня — со временем и аудиториями — и напоминает о невыполненных задачах «Срочно и важно». В дни без пар бот молчит.</p>' +
+    '<section class="notify" id="notifyBox"></section><div id="syncNote"></div>' +
+    '<button class="ghost" id="notifyClose">Готово</button>', "notify");
+  renderNotify(); updateSyncNote();
+  document.getElementById("notifyClose").onclick = closeSheet;
+}
+function renderNotify(){
+  renderBell();
+  const box = document.getElementById("notifyBox");
+  if (!box) return;
+  const on = state.notify !== false;
+  const status = serverState.ok === false && serverState.error
+    ? '<p class="nstat err">' + esc(serverState.error) + '</p>'
+    : '<p class="nstat">' + (on
+        ? "Включено — завтра в 7:00, если будут пары, придёт сводка."
+        : "Выключено — утром бот ничего не пришлёт.") + '</p>';
+  box.innerHTML =
+    '<div class="nrow"><span class="nic">' + ICON.bell + '</span>' +
+      '<span class="ntx"><b>Утренняя сводка</b><i>в Telegram, в 7:00</i></span>' +
+      '<button class="switch' + (on ? " on" : "") + '" id="notifySw" role="switch" aria-checked="' + on + '" aria-label="Утренняя сводка"><span></span></button></div>' +
+    status +
+    (on ? (serverState.testSent
+        ? '<p class="nstat ok">Сводка отправлена — загляните в чат с ботом.</p>'
+        : '<button class="ntest" id="notifyTest">Прислать сводку сейчас для проверки</button>') : "");
+  document.getElementById("notifySw").onclick = () => {
+    state.notify = !on; save(); buzz("light"); renderNotify();
+  };
+  const t = document.getElementById("notifyTest");
+  if (t) t.onclick = () => {
+    t.disabled = true; t.textContent = "Отправляю…";
+    pushServer(true).then(r => {
+      if (r.ok){
+        serverState.testSent = true; buzz("medium"); renderNotify();
+        setTimeout(() => { serverState.testSent = false; renderNotify(); }, 8000);
+      }
+    });
+  };
+}
+
+function save(){
+  state.updated = Date.now();
+  const raw = JSON.stringify(state);
+  writeLocal(raw);
+  schedulePush();
+  if (!cloud) return;
+  syncPending = true;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(pushCloud, 350);
+}
+window.addEventListener("online", () => { if (syncPending) pushCloud(); });
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && syncPending) pushCloud();
+});
+
+/* ---------------- константы ---------------- */
+const DAYS = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+const DAYS_FULL = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"];
+const DAYS_SHORT = ["понедельник","вторник","среда","четверг","пятница","суббота","воскресенье"];
+const DAY_KEYS = [["понедельник","в пн"],["вторник"],["сред"],["четверг"],["пятниц"],["суббот"],["воскрес"]];
+const MONTHS = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+const PALETTE = ["#5B3DF5","#E0349B","#FF6B4A","#00B3A4","#F5A623","#2D8CFF"];
+const WORDNUM = { "восемь":8,"девять":9,"десять":10,"одиннадцать":11,"двенадцать":12,"час":13,
+  "два":14,"три":15,"четыре":16,"пять":17,"шесть":18,"семь":19 };
+
+function emptyState(){ return { subjects:[], lessons:[], dayNotes:[], night:null, onboarded:false, dayView:null, hideDone:false, notify:true }; }
+
+let state = null;
+const todayIdx = () => (new Date().getDay() + 6) % 7;
+let selectedDay = todayIdx();
+const openSubjects = new Set();
+const openNotes = new Set();
+const openLessons = new Set();
+
+/* ---------------- утилиты ---------------- */
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const subjById = id => state.subjects.find(s => s.id === id);
+const minutes = t => { const p = String(t).split(":"); return (+p[0])*60 + (+p[1]); };
+const pad = n => String(n).padStart(2,"0");
+const tint = (hex, a) => { const n = parseInt(hex.slice(1),16); return "rgba("+(n>>16)+","+((n>>8)&255)+","+(n&255)+","+a+")"; };
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+function addMinutes(t, add){
+  const m = minutes(t) + add;
+  return pad(Math.floor(m/60) % 24) + ":" + pad(m % 60);
+}
+function when(ts){
+  const d = new Date(ts), now = new Date();
+  const hh = pad(d.getHours()) + ":" + pad(d.getMinutes());
+  return d.toDateString() === now.toDateString() ? "сегодня, " + hh : d.getDate() + " " + MONTHS[d.getMonth()] + ", " + hh;
+}
+function plural(n, one, few, many){
+  const a = n % 10, b = n % 100;
+  if (a === 1 && b !== 11) return one;
+  if (a >= 2 && a <= 4 && (b < 10 || b >= 20)) return few;
+  return many;
+}
+const minWord = n => n + " " + plural(n, "минуту", "минуты", "минут");
+const ICON = {
+  mic:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>',
+  micBig:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>',
+  stop:'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="3"/></svg>',
+  send:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>',
+  trash:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13"/></svg>',
+  chev:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  sun:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  book:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5z"/><path d="M4 17.5h16"/></svg>',
+  clock:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  plusSm:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  bell:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 003.4 0"/></svg>',
+  note:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h8"/></svg>',
+  expand:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H3v6M15 21h6v-6M21 9V3h-6M3 15v6h6"/></svg>',
+  eye:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 10.6a3 3 0 004.2 4.2M9.4 5.3A9.6 9.6 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-3.2 4M6.2 6.6A17 17 0 002 12s3.6 7 10 7a9.7 9.7 0 003.5-.63"/></svg>',
+  list:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>',
+  grid:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>',
+  file:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>',
+  left:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
+  right:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  tick:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg>'
+};
+
+/* ---------------- разбор речи ---------------- */
+function parseSubject(text){
+  let t = String(text).trim().replace(/\s+/g," ").replace(/[.!?]+$/,"");
+  let parts = t.split(/\s*[,;]\s*|\s+запятая\s+/i).map(s => s.trim()).filter(Boolean);
+  let name = "", teacher = "", room = "";
+  if (parts.length >= 2){
+    name = parts[0]; teacher = parts[1]; room = parts[2] || "";
+  } else {
+    let m = t.match(/(?:ауд(?:итория|\.)?|кабинет|каб\.?|корпус|зал)\s*[№#]?\s*([А-Яа-яЁёA-Za-z0-9\-]+)/i);
+    if (m){ room = m[1]; t = t.replace(m[0], " "); }
+    else { m = t.match(/(?:^|\s)(\d{2,4}[а-яА-Я]?)(?=\s|$)/); if (m){ room = m[1]; t = t.replace(m[0], " "); } }
+    m = t.match(/(?:препод(?:аватель|авателем)?|ведёт|ведет|у)\s+([А-ЯЁ][а-яё]+(?:\s+[А-ЯЁ][а-яё]*\.?){0,2})/);
+    if (m){ teacher = m[1]; t = t.replace(m[0], " "); }
+    name = t.replace(/\s+/g," ").trim();
+  }
+  room = room.replace(/^(ауд(итория)?\.?|кабинет|каб\.?|зал)\s*[№#]?\s*/i, "").trim();
+  return { name:cap(name), teacher:cap(teacher), room:room };
+}
+function parseLesson(text){
+  const low = String(text).toLowerCase();
+  let day = null;
+  DAY_KEYS.forEach((keys, i) => { if (keys.some(k => low.indexOf(k) >= 0)) day = i; });
+  let time = null;
+  let m = low.match(/(\d{1,2})\s*[:.]\s*(\d{2})/);
+  if (m) time = pad(+m[1]) + ":" + m[2];
+  if (!time){
+    m = low.match(/(?:в|с)\s+(\d{1,2})(?!\d)/);
+    if (m) time = pad(+m[1]) + ":00";
+  }
+  if (!time){
+    for (const w in WORDNUM){
+      if (low.indexOf(" " + w) >= 0 || low.indexOf("в " + w) >= 0){ time = pad(WORDNUM[w]) + ":00"; break; }
+    }
+  }
+  let subjectId = null;
+  let best = 0;
+  state.subjects.forEach(s => {
+    const key = s.name.toLowerCase().slice(0, Math.min(5, s.name.length));
+    if (key && low.indexOf(key) >= 0 && key.length > best){ best = key.length; subjectId = s.id; }
+  });
+  return { day, time, subjectId };
+}
+
+/* ---------------- распознавание речи ---------------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const voiceSupported = !!SR;
+let rec = null, recording = false, sink = null, onRecEnd = null;
+let segs = new Map(), segSid = 0, segSeen = new Set(), restarts = 0, manualStop = false, restarting = false;
+/* склеиваем куски по номерам и снимаем подряд идущие повторы фраз */
+/* ---------------- сборка распознанного текста ----------------
+   Каждый кусок речи получает сквозной номер: НОМЕР СЕССИИ + НОМЕР ВНУТРИ НЕЁ.
+   Сессия меняется при каждом перезапуске после паузы. Такой номер уникален,
+   поэтому повторная присылка того же куска просто перезаписывает свою ячейку,
+   а не добавляет новую. Плюс два фильтра: уже звучавшие завершённые куски
+   из прошлых сессий отсеиваются по содержимому, а на склейке снимается нахлёст. */
+const kw = x => String(x).toLowerCase().replace(/ё/g,"е").replace(/[^а-яa-z0-9]/gi,"");
+
+function segReset(){ segs = new Map(); segSid = 0; segSeen = new Set(); }
+function segPut(idx, text, final){
+  if (!String(text).trim()) return;
+  /* кусок, который уже звучал в прошлых сессиях, — это повтор, а не новая речь */
+  if (final && segSid > 0 && segSeen.has(kw(text))) return;
+  segs.set(segSid + ":" + idx, { s:segSid, i:idx, t:String(text), final:!!final });
+}
+function segNextSession(){
+  segs.forEach(v => { if (v.final) segSeen.add(kw(v.t)); });
+  segSid++;
+}
+function joinNoOverlap(a, b){
+  const A = a.split(" ").filter(Boolean), B = b.split(" ").filter(Boolean);
+  if (!A.length) return B.join(" ");
+  if (!B.length) return A.join(" ");
+  for (let k = Math.min(A.length, B.length); k >= 1; k--){
+    let same = true;
+    for (let i = 0; i < k; i++){
+      if (kw(A[A.length - k + i]) !== kw(B[i])){ same = false; break; }
+    }
+    if (same) return A.concat(B.slice(k)).join(" ");
+  }
+  return A.concat(B).join(" ");
+}
+/* подряд идущие одинаковые куски речи (от трёх слов) сворачиваем в один */
+function dedupe(t){
+  const w = t.split(" ").filter(Boolean);
+  for (let len = Math.floor(w.length / 2); len >= 3; len--){
+    for (let i = 0; i + 2 * len <= w.length; i++){
+      const a = w.slice(i, i + len).map(kw).join(" ");
+      let j = i + len;
+      while (j + len <= w.length && w.slice(j, j + len).map(kw).join(" ") === a) j += len;
+      if (j > i + len){ w.splice(i + len, j - i - len); return dedupe(w.join(" ")); }
+    }
+  }
+  return w.join(" ");
+}
+function collectText(){
+  const list = Array.from(segs.values()).sort((x,y) => x.s - y.s || x.i - y.i);
+  let out = "";
+  list.forEach(v => { out = joinNoOverlap(out, v.t.replace(/\s+/g," ").trim()); });
+  return dedupe(out).trim();
+}
+function startRec(sinkFn, endFn){
+  if (!SR) return false;
+  /* если предыдущий экземпляр ещё жив, он продолжал бы писать в тот же буфер
+     и текст удваивался бы — глушим его до создания нового */
+  if (rec){ rec.onresult = null; rec.onend = null; rec.onerror = null; try { rec.stop(); } catch(e){} rec = null; }
+  segReset(); restarts = 0; manualStop = false; restarting = false;
+  sink = sinkFn; onRecEnd = endFn || null;
+  try { rec = new SR(); } catch(e){ return false; }
+  rec.lang = "ru-RU"; rec.continuous = true; rec.interimResults = true;
+  rec.onstart = () => { restarting = false; };
+  rec.onresult = e => {
+    /* куски, долетевшие в момент перезапуска, уже учтены в копилке — пропускаем */
+    restarting = false;
+    for (let i = e.resultIndex; i < e.results.length; i++){
+      segPut(i, e.results[i][0].transcript, e.results[i].isFinal);
+    }
+    if (sink) sink(collectText(), false);
+  };
+  rec.onerror = ev => {
+    if (ev.error === "no-speech" || ev.error === "aborted" || ev.error === "network") return;
+    showRecError(ev.error === "not-allowed"
+      ? "Нет доступа к микрофону — разрешите его или введите текст."
+      : "Распознавание прервалось (" + (ev.error || "без кода") + "). Можно продолжить текстом.");
+    manualStop = true;
+    stopRec(true);
+  };
+  rec.onend = () => {
+    if (!recording || manualStop) return;
+    /* обрыв по тишине: переносим готовое в копилку и поднимаем ТОТ ЖЕ экземпляр,
+       не создавая новый — новый вебвью воспринял бы как новый запрос микрофона */
+    segNextSession();
+    restarting = true;
+    if (++restarts > 60){ stopRec(false); return; }
+    try { rec.start(); } catch(e){ stopRec(false); }
+  };
+  try { rec.start(); } catch(e){ return false; }
+  recording = true;
+  syncRecUI();
+  return true;
+}
+function stopRec(silent){
+  manualStop = true;
+  if (rec){ rec.onresult = null; rec.onend = null; rec.onerror = null; try { rec.stop(); } catch(e){} }
+  rec = null;
+  const wasRecording = recording;
+  recording = false;
+  syncRecUI();
+  if (wasRecording && sink) sink(collectText(), true);
+  if (wasRecording && onRecEnd) onRecEnd(collectText());
+  if (!silent) buzz("rigid");
+}
+function syncRecUI(){
+  const fab = document.getElementById("recBtn");
+  if (fab) fab.classList.toggle("on", recording);
+  const rl = document.getElementById("recLabel");
+  if (rl) rl.textContent = recording ? "Стоп" : "Продиктовать";
+  document.querySelectorAll("[data-micstate]").forEach(el => el.classList.toggle("live", recording));
+  document.querySelectorAll("[data-miclabel]").forEach(el => {
+    el.textContent = recording ? "Слушаю — нажмите, когда закончите" : el.dataset.miclabel;
+  });
+  document.querySelectorAll("[data-micicon]").forEach(el => { el.innerHTML = recording ? ICON.stop : ICON.micBig; });
+  const w = document.getElementById("vWave"); if (w) w.style.display = recording ? "flex" : "none";
+  const t = document.getElementById("vToggle"); if (t) t.textContent = recording ? "Остановить запись" : "Записать ещё";
+}
+function showRecError(msg){
+  const h = document.getElementById("vHint") || document.getElementById("introHint");
+  if (h) h.textContent = msg;
+}
+const NO_VOICE = "Распознавание речи в этом клиенте недоступно — в Telegram на iOS его обычно нет. Введите текст руками.";
+
+/* ---------------- первый запуск ---------------- */
+const intro = document.getElementById("intro");
+const app = document.getElementById("app");
+let introStep = 0;
+let draftColor = PALETTE[0];
+
+function showIntro(){
+  intro.hidden = false; app.hidden = true;
+  introStep = 0; renderIntro();
+}
+function finishIntro(){
+  state.onboarded = true; save();
+  intro.hidden = true; app.hidden = false;
+  selectedDay = todayIdx();
+  renderAll();
+}
+function stepBar(n){
+  return '<div class="steps">' + [0,1].map(i => '<i class="' + (i <= n ? "on" : "") + '"></i>').join("") + '</div>';
+}
+function addedSubjectsHTML(){
+  if (!state.subjects.length) return "";
+  return '<div class="added">' + state.subjects.map(s =>
+    '<div class="added-item"><span class="dot" style="background:' + (s.color||PALETTE[0]) + '"></span>' +
+    '<span class="txt"><b>' + esc(s.name) + '</b><span>' +
+      esc([s.teacher, s.room ? "ауд. " + s.room : ""].filter(Boolean).join(", ") || "без деталей") +
+    '</span></span>' +
+    '<button class="del" data-intro-del="' + s.id + '" aria-label="Удалить">' + ICON.trash + '</button></div>').join("") + '</div>';
+}
+function addedLessonsHTML(){
+  const list = state.lessons.filter(l => l.day === selectedDay).sort((a,b) => minutes(a.time) - minutes(b.time));
+  if (!list.length) return '<p class="empty">В этот день пока пусто.</p>';
+  return '<div class="added">' + list.map(l => {
+    const s = subjById(l.subjectId);
+    return '<div class="added-item"><span class="dot" style="background:' + (s ? s.color : PALETTE[0]) + '"></span>' +
+      '<span class="txt"><b>' + l.time + " — " + esc(s ? s.name : "пара") + '</b><span>' +
+        (l.end ? "до " + l.end : "") + '</span></span>' +
+      '<button class="del" data-intro-del-lesson="' + l.id + '" aria-label="Удалить">' + ICON.trash + '</button></div>';
+  }).join("") + '</div>';
+}
+function micCTA(label){
+  return '<button class="mic-cta" id="introMic" data-micstate>' +
+    '<span class="ring" data-micicon>' + ICON.micBig + '</span>' +
+    '<span><b data-miclabel="' + label + '">' + label + '</b>' +
+    '<span id="micHint">Потом можно поправить руками</span></span></button>';
+}
+
+function renderIntro(){
+  if (introStep === 0){
+    intro.innerHTML =
+      '<div class="intro-hero"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>' +
+      '<div class="in"><h1>Соберём ваш<br>учебный день</h1>' +
+      '<p>Предметы, преподаватели, аудитории и расписание — в одном месте. Заполним за пару минут.</p></div></div>' +
+      '<div class="intro-body">' +
+        '<button class="primary" id="introStart" style="margin-top:4px">Начать настройку</button>' +
+        '<button class="ghost" id="introSkip">Пропустить и заполнить позже</button>' +
+      '</div>';
+    document.getElementById("introStart").onclick = () => { buzz("medium"); introStep = 1; renderIntro(); };
+    document.getElementById("introSkip").onclick = () => { buzz("light"); finishIntro(); };
+    return;
+  }
+
+  if (introStep === 1){
+    draftColor = PALETTE[state.subjects.length % PALETTE.length];
+    intro.innerHTML = '<div class="intro-body" style="padding-top:calc(26px + env(safe-area-inset-top))">' +
+      stepBar(0) +
+      '<h2>Ваши предметы</h2>' +
+      '<p class="lead">Продиктуйте одной фразой: «Матанализ, Иванова Елена Петровна, 214». Или заполните поля руками.</p>' +
+      '<div class="two-up">' +
+        (voiceSupported ? '<button class="up" id="introMic" data-micstate><span class="ic" data-micicon>' + ICON.micBig + '</span><b data-miclabel="Продиктовать">Продиктовать</b><span id="micHint">одной фразой</span></button>' : "") +
+        '<button class="up" id="introFile"><span class="ic">' + ICON.file + '</span><b>Загрузить файл</b><span>PDF, Word, Excel</span></button>' +
+      '</div>' +
+      '<p class="hint" id="introHint">' + (voiceSupported ? "" : NO_VOICE) + '</p>' +
+      '<p class="or">или введите вручную</p>' +
+      '<div class="form-card">' +
+        '<input class="field" id="iName" placeholder="Название предмета">' +
+        '<input class="field" id="iTeacher" placeholder="Преподаватель">' +
+        '<input class="field" id="iRoom" placeholder="Аудитория">' +
+        '<p class="chip-label" style="margin-top:14px">Цвет</p>' +
+        '<div class="chips" id="iColors">' + PALETTE.map(c =>
+          '<button class="chip swatch" data-color="' + c + '" style="background:' + c +
+          (c === draftColor ? ";box-shadow:0 0 0 3px var(--surface),0 0 0 5px " + c : "") + '" aria-label="Цвет"></button>').join("") + '</div>' +
+        '<button class="primary" id="iAdd">Добавить предмет</button>' +
+      '</div>' +
+      addedSubjectsHTML() +
+      '<button class="primary" id="introNext"' + (state.subjects.length ? "" : " disabled") + '>' +
+        (state.subjects.length ? "Дальше — расписание" : "Добавьте хотя бы один предмет") + '</button>' +
+      '<button class="ghost" id="introLater">Заполню позже</button>' +
+    '</div>';
+
+    const nameEl = document.getElementById("iName");
+    const teacherEl = document.getElementById("iTeacher");
+    const roomEl = document.getElementById("iRoom");
+
+    const mic = document.getElementById("introMic");
+    if (mic) mic.onclick = () => {
+      if (recording){ stopRec(false); return; }
+      buzz("medium");
+      const ok = startRec(
+        (text, done) => {
+          document.getElementById("micHint").textContent = text || "Говорите…";
+          if (done && text){
+            const p = parseSubject(text);
+            if (p.name) nameEl.value = p.name;
+            if (p.teacher) teacherEl.value = p.teacher;
+            if (p.room) roomEl.value = p.room;
+            document.getElementById("micHint").textContent = "Проверьте поля ниже и нажмите «Добавить»";
+          }
+        });
+      if (!ok) document.getElementById("introHint").textContent = NO_VOICE;
+    };
+
+    document.getElementById("iColors").onclick = e => {
+      const b = e.target.closest("[data-color]"); if (!b) return;
+      draftColor = b.dataset.color;
+      Array.prototype.forEach.call(b.parentNode.children, c => c.style.boxShadow = "none");
+      b.style.boxShadow = "0 0 0 3px var(--surface),0 0 0 5px " + draftColor;
+      buzz("light");
+    };
+    document.getElementById("iAdd").onclick = () => {
+      const name = nameEl.value.trim();
+      if (!name){ nameEl.focus(); return; }
+      state.subjects.push({ id:uid(), name, teacher:teacherEl.value.trim(), room:roomEl.value.trim(), color:draftColor, notes:[] });
+      save(); buzz("medium"); stopRec(true); renderIntro();
+    };
+    document.getElementById("introNext").onclick = () => {
+      if (!state.subjects.length) return;
+      stopRec(true); buzz("medium"); introStep = 2; renderIntro();
+    };
+    document.getElementById("introFile").onclick = () => { stopRec(true); openImport(); };
+    document.getElementById("introLater").onclick = () => { stopRec(true); finishIntro(); };
+    intro.scrollTop = 0;
+    return;
+  }
+
+  /* шаг 2 — расписание */
+  const subj = state.subjects;
+  let pickSubject = subj.length ? subj[0].id : null;
+  intro.innerHTML = '<div class="intro-body" style="padding-top:calc(26px + env(safe-area-inset-top))">' +
+    stepBar(1) +
+    '<h2>Расписание</h2>' +
+    '<p class="lead">Продиктуйте: «В понедельник матанализ в 9:00». Или выберите предмет, день и время вручную.</p>' +
+    (voiceSupported ? micCTA("Продиктовать пару") : "") +
+    '<p class="hint" id="introHint">' + (voiceSupported ? "" : NO_VOICE) + '</p>' +
+    (voiceSupported ? '<p class="or">или выберите вручную</p>' : "") +
+    '<div class="form-card">' +
+      '<p class="chip-label" style="margin-top:0">Предмет</p>' +
+      '<div class="chips" id="iSubjects">' + subj.map((s,i) =>
+        '<button class="chip' + (i === 0 ? " on" : "") + '" data-pick="' + s.id + '">' + esc(s.name) + '</button>').join("") + '</div>' +
+      '<p class="chip-label">День</p>' +
+      '<div class="chips" id="iDays">' + DAYS.map((d,i) =>
+        '<button class="chip' + (i === selectedDay ? " on" : "") + '" data-day-pick="' + i + '">' + d + '</button>').join("") + '</div>' +
+      '<p class="chip-label">Время</p>' +
+      '<div class="field-row" style="margin-top:10px">' +
+        '<input class="field" id="iTime" type="time" value="09:00">' +
+        '<input class="field" id="iEnd" type="time" value="10:30"></div>' +
+      '<button class="primary" id="iAddLesson">Добавить пару</button>' +
+    '</div>' +
+    '<p class="chip-label" style="margin:0 0 10px">' + DAYS_FULL[selectedDay] + '</p>' +
+    addedLessonsHTML() +
+    '<button class="primary" id="introDone">Готово</button>' +
+    '<button class="ghost" id="introBack">Назад к предметам</button>' +
+  '</div>';
+
+  const timeEl = document.getElementById("iTime");
+  const endEl = document.getElementById("iEnd");
+  const markChip = (container, attr, value) => {
+    Array.prototype.forEach.call(document.getElementById(container).children, c => {
+      c.classList.toggle("on", c.dataset[attr] === String(value));
+    });
+  };
+  document.getElementById("iSubjects").onclick = e => {
+    const b = e.target.closest("[data-pick]"); if (!b) return;
+    pickSubject = b.dataset.pick; markChip("iSubjects","pick",pickSubject); buzz("light");
+  };
+  document.getElementById("iDays").onclick = e => {
+    const b = e.target.closest("[data-day-pick]"); if (!b) return;
+    selectedDay = +b.dataset.dayPick; buzz("light"); stopRec(true); renderIntro();
+  };
+  timeEl.onchange = () => { endEl.value = addMinutes(timeEl.value || "09:00", 90); };
+
+  const mic2 = document.getElementById("introMic");
+  if (mic2) mic2.onclick = () => {
+    if (recording){ stopRec(false); return; }
+    buzz("medium");
+    const ok = startRec((text, done) => {
+      document.getElementById("micHint").textContent = text || "Говорите…";
+      if (done && text){
+        const p = parseLesson(text);
+        if (p.subjectId){ pickSubject = p.subjectId; markChip("iSubjects","pick",pickSubject); }
+        if (p.time){ timeEl.value = p.time; endEl.value = addMinutes(p.time, 90); }
+        if (p.day !== null && p.day !== selectedDay){
+          selectedDay = p.day;
+          const pending = { subjectId:pickSubject, time:timeEl.value, end:endEl.value };
+          renderIntro();
+          const t2 = document.getElementById("iTime"), e2 = document.getElementById("iEnd");
+          if (t2){ t2.value = pending.time; e2.value = pending.end; }
+          if (pending.subjectId) markChip("iSubjects","pick",pending.subjectId);
+          const hint = document.getElementById("micHint");
+          if (hint) hint.textContent = "Проверьте и нажмите «Добавить пару»";
+          return;
+        }
+        document.getElementById("micHint").textContent = "Проверьте и нажмите «Добавить пару»";
+      }
+    });
+    if (!ok) document.getElementById("introHint").textContent = NO_VOICE;
+  };
+
+  document.getElementById("iAddLesson").onclick = () => {
+    if (!pickSubject) return;
+    state.lessons.push({ id:uid(), day:selectedDay, subjectId:pickSubject,
+      time:timeEl.value || "09:00", end:endEl.value || "", notes:[] });
+    save(); buzz("medium"); stopRec(true); renderIntro();
+  };
+  document.getElementById("introDone").onclick = () => { stopRec(true); buzz("medium"); finishIntro(); };
+  document.getElementById("introBack").onclick = () => { stopRec(true); introStep = 1; renderIntro(); };
+  intro.scrollTop = 0;
+}
+
+intro.addEventListener("click", e => {
+  const d = e.target.closest("[data-intro-del]");
+  if (d){
+    const id = d.dataset.introDel;
+    state.subjects = state.subjects.filter(s => s.id !== id);
+    state.lessons = state.lessons.filter(l => l.subjectId !== id);
+    save(); buzz("light"); renderIntro(); return;
+  }
+  const dl = e.target.closest("[data-intro-del-lesson]");
+  if (dl){
+    state.lessons = state.lessons.filter(l => l.id !== dl.dataset.introDelLesson);
+    save(); buzz("light"); renderIntro();
+  }
+});
+
+/* ---------------- главный экран ---------------- */
+/* Пара может быть привязана к конкретной дате (импорт из файла)
+   или повторяться каждую неделю (добавлена руками). */
+let weekOffset = 0;
+function mondayOf(offset){
+  const d = new Date(); d.setHours(0,0,0,0);
+  d.setDate(d.getDate() - todayIdx() + (offset || 0) * 7);
+  return d;
+}
+function dateOfDay(i, offset){
+  const d = mondayOf(offset === undefined ? weekOffset : offset);
+  d.setDate(d.getDate() + i);
+  return d;
+}
+const iso = d => d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+function lessonsFor(dayIdx, offset){
+  const key = iso(dateOfDay(dayIdx, offset));
+  return state.lessons
+    .filter(l => l.date ? l.date === key : l.day === dayIdx)
+    .sort((a,b) => minutes(a.time) - minutes(b.time));
+}
+function renderHero(){
+  const d = new Date();
+  const idx = todayIdx();
+  const nowMin = d.getHours()*60 + d.getMinutes();
+  document.getElementById("heroDate").textContent = DAYS_SHORT[idx] + ", " + d.getDate() + " " + MONTHS[d.getMonth()];
+  const box = document.getElementById("heroBody");
+
+  if (!state.subjects.length){
+    box.innerHTML = '<p class="status">Пустой старт</p><h1>Добавьте первый предмет</h1>' +
+      '<div class="hero-meta">Кнопка «Добавить» ниже или микрофон в углу</div>';
+    return;
+  }
+  const list = lessonsFor(idx, 0);
+  if (!list.length){
+    box.innerHTML = '<p class="status">Свободный день</p><h1>Пар сегодня нет</h1>' +
+      '<div class="hero-meta">Хороший повод разобрать заметки и закрыть долги</div>';
+    return;
+  }
+  const live = list.find(l => nowMin >= minutes(l.time) && nowMin < minutes(l.end || l.time));
+  const next = list.find(l => minutes(l.time) > nowMin);
+  const target = live || next;
+  if (!target){
+    const last = list[list.length-1];
+    const s = subjById(last.subjectId);
+    box.innerHTML = '<p class="status">Пары закончились</p>' +
+      '<h1>' + list.length + " " + plural(list.length,"пара","пары","пар") + ' позади</h1>' +
+      '<div class="hero-meta">Последней была ' + esc(s ? s.name : "пара") + '</div>';
+    return;
+  }
+  const s = subjById(target.subjectId);
+  const start = minutes(target.time), end = minutes(target.end || target.time);
+  const pct = live && end > start ? Math.min(100, ((nowMin - start) / (end - start)) * 100) : 0;
+  box.innerHTML =
+    (live ? '<p class="status"><span class="live-dot"></span>Идёт сейчас</p>'
+          : '<p class="status">Дальше, через ' + minWord(start - nowMin) + '</p>') +
+    '<h1>' + esc(s ? s.name : "Пара") + '</h1>' +
+    '<div class="hero-meta">' + (s && s.room ? '<span class="tag">ауд. ' + esc(s.room) + '</span>' : "") +
+      '<span>' + esc(s && s.teacher ? s.teacher : "преподаватель не указан") + '</span></div>' +
+    '<div class="bar"><i id="heroBar"></i></div>' +
+    '<div class="bar-labels"><span>' + target.time + '</span><b>' +
+      (live ? "осталось " + minWord(Math.max(0, end - nowMin)) : "начало в " + target.time) +
+    '</b><span>' + (target.end || "") + '</span></div>';
+  requestAnimationFrame(() => { const bar = document.getElementById("heroBar"); if (bar) bar.style.width = pct + "%"; });
+}
+
+/* ---------------- матрица Эйзенхауэра ---------------- */
+const QUADS = [
+  { k:0, crit:"Срочно и важно",        name:"Сделать сейчас",  color:"#FF3B5C" },
+  { k:1, crit:"Важно, но не срочно",   name:"Запланировать",   color:"#5B3DF5" },
+  { k:2, crit:"Срочно, но не важно",   name:"Быстро закрыть",  color:"#F5A623" },
+  { k:3, crit:"И не срочно, и не важно", name:"Потом",         color:"#7C8092" }
+];
+const noteTitle = n => (n.title || n.text || "").trim();
+const noteBody  = n => (n.body || "").trim();
+function dayView(){ return state.dayView === "matrix" ? "matrix" : "list"; }
+function setDayView(v){ state.dayView = v; save(); }
+function hideDone(){ return !!state.hideDone; }
+/* выполненные опускаются вниз, порядок внутри групп сохраняется */
+function sinkDone(list){ return list.filter(n => !n.done).concat(list.filter(n => n.done)); }
+function visible(list){ return sinkDone(hideDone() ? list.filter(n => !n.done) : list); }
+function doneCount(){ return state.dayNotes.filter(n => n.done).length; }
+function quadNotes(k){ return visible(state.dayNotes.filter(n => n.quad === k)); }
+function unsorted(){ return visible(state.dayNotes.filter(n => n.quad === undefined || n.quad === null)); }
+
+function renderDayPill(){
+  const open = state.dayNotes.filter(n => !n.done).length;
+  const el = document.getElementById("dayNotesCount");
+  el.textContent = open;
+  el.classList.toggle("zero", open === 0);
+  document.getElementById("dayNotesSub").textContent = open === 0
+    ? "ничего не записано"
+    : open + " " + plural(open, "невыполненная задача", "невыполненные задачи", "невыполненных задач");
+}
+function noteHTML(n, scope, id){
+  return '<div class="note' + (n.done ? " done" : "") + '">' +
+    '<p>' + esc(n.text) + '<time>' + when(n.ts) + '</time></p>' +
+    '<button class="del" data-del="' + scope + '" data-owner="' + id + '" data-note="' + n.id + '" aria-label="Удалить">' + ICON.trash + '</button></div>';
+}
+const drafts = {};
+const draftKey = (scope, id) => scope + ":" + id;
+function composerHTML(scope, id){
+  const d = drafts[draftKey(scope, id)] || "";
+  return '<div class="composer">' +
+    '<textarea rows="1" placeholder="Записать заметку…" data-input="' + scope + '" data-owner="' + id + '">' + esc(d) + '</textarea>' +
+    '<button class="icon-btn" data-voice="' + scope + '" data-owner="' + id + '" aria-label="Голосом">' + ICON.mic + '</button>' +
+    '<button class="icon-btn solid" data-send="' + scope + '" data-owner="' + id + '" aria-label="Сохранить">' + ICON.send + '</button></div>';
+}
+function renderSubjects(){
+  const box = document.getElementById("subjectList");
+  document.getElementById("thead").hidden = !state.subjects.length;
+  if (!state.subjects.length){
+    box.innerHTML = '<div class="empty-box"><p>Здесь появятся ваши предметы с преподавателями и аудиториями.</p>' +
+      '<button class="primary" id="emptyAddSubject" style="margin:0">Добавить предмет</button></div>';
+    document.getElementById("emptyAddSubject").onclick = () => openSubjectForm(null);
+    return;
+  }
+  box.innerHTML = state.subjects.map(s => {
+    const c = s.color || PALETTE[0];
+    const open = openSubjects.has(s.id);
+    const notes = s.notes.length
+      ? '<div class="notes">' + s.notes.map(n => noteHTML(n, "subject", s.id)).join("") + '</div>'
+      : '<p class="empty">Заметок по предмету нет.</p>';
+    return '<div class="subject' + (open ? " open" : "") + '">' +
+      '<button class="trow" data-toggle="' + s.id + '" aria-expanded="' + open + '">' +
+        '<span class="s-name"><span class="dot" style="background:' + c + '"></span><span class="nm">' + esc(s.name) + '</span>' +
+          (s.notes.length ? ' <span class="count">' + s.notes.length + '</span>' : "") + '</span>' +
+        '<span class="s-teacher">' + esc(s.teacher || "—") + '</span>' +
+        '<span class="s-room" style="background:' + tint(c,.13) + ';color:' + c + '">' + esc(s.room || "—") + '</span>' +
+        '<span class="chev">' + ICON.chev + '</span></button>' +
+      '<div class="panel">' + notes + composerHTML("subject", s.id) +
+        '<button class="ghost-link" data-edit-subject="' + s.id + '">Изменить предмет</button></div></div>';
+  }).join("");
+}
+function renderWeek(){
+  const monday = mondayOf(weekOffset);
+  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  const title = weekOffset === 0 ? "Эта неделя"
+    : weekOffset === 1 ? "Следующая неделя"
+    : weekOffset === -1 ? "Прошлая неделя"
+    : (weekOffset > 0 ? "Через " + weekOffset + " " + plural(weekOffset,"неделю","недели","недель")
+                      : plural(-weekOffset,"Неделю","Недели","Недель") + " назад");
+  const range = monday.getDate() + " " + MONTHS[monday.getMonth()].slice(0,3) + " — " +
+    sunday.getDate() + " " + MONTHS[sunday.getMonth()].slice(0,3);
+  document.getElementById("weekNav").innerHTML =
+    '<button class="wk" data-week="-1" aria-label="Предыдущая неделя">' + ICON.left + '</button>' +
+    '<div class="plate' + (weekOffset === 0 ? " now" : "") + '"><b>' + title + '</b><i>' + range + '</i></div>' +
+    '<button class="wk" data-week="1" aria-label="Следующая неделя">' + ICON.right + '</button>';
+
+  document.getElementById("week").innerHTML = DAYS.map((d,i) => {
+    const dt = dateOfDay(i);
+    const isToday = weekOffset === 0 && i === todayIdx();
+    const has = lessonsFor(i).length > 0;
+    return '<button class="day' + (i === selectedDay ? " sel" : "") + (isToday ? " today" : "") +
+      (has ? " has" : "") + '" data-day="' + i + '"><i>' + d + '</i><b>' + dt.getDate() + '</b><u></u></button>';
+  }).join("");
+}
+function renderTimeline(){
+  const box = document.getElementById("timeline");
+  const list = lessonsFor(selectedDay);
+  if (!list.length){
+    box.innerHTML = '<div class="empty-box"><p>' + DAYS_FULL[selectedDay] + ' пустой.</p>' +
+      (state.subjects.length
+        ? '<button class="primary" id="emptyAddLesson" style="margin:0">Добавить пару</button>'
+        : '<span class="empty">Сначала добавьте предмет выше.</span>') + '</div>';
+    const b = document.getElementById("emptyAddLesson");
+    if (b) b.onclick = openLessonForm;
+    return;
+  }
+  const now = new Date();
+  const isToday = weekOffset === 0 && selectedDay === todayIdx();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  box.innerHTML = list.map(l => {
+    const s = subjById(l.subjectId);
+    const c = s && s.color ? s.color : PALETTE[0];
+    const live = isToday && nowMin >= minutes(l.time) && nowMin < minutes(l.end || l.time);
+    const open = openLessons.has(l.id);
+    const notes = l.notes.length
+      ? '<div class="notes">' + l.notes.map(n => noteHTML(n, "lesson", l.id)).join("") + '</div>'
+      : '<p class="empty">Заметок по этой паре нет.</p>';
+    const room = l.room || (s && s.room) || "";
+    return '<div class="slot' + (open ? " open" : "") + '">' +
+      '<div class="when"><b>' + l.time + '</b><em>' + (l.end || "") + '</em></div>' +
+      '<div class="lesson" style="border-color:' + c + '">' +
+        '<button class="lesson-head" data-lesson-toggle="' + l.id + '" aria-expanded="' + open + '">' +
+          '<span class="nm">' + (live ? '<span class="now-tag">сейчас</span>' : "") + esc(s ? s.name : "Пара") + '</span>' +
+          (room ? '<span class="rm" style="background:' + tint(c,.13) + ';color:' + c + '">' + esc(room) + '</span>' : "") +
+        '</button>' +
+        '<div class="meta">' + (l.kind ? esc(cap(l.kind.toLowerCase())) + ", " : "") +
+          esc(s && s.teacher ? s.teacher : "преподаватель не указан") +
+          (l.notes.length ? ", заметок: " + l.notes.length : "") + '</div>' +
+        '<div class="panel">' + notes + composerHTML("lesson", l.id) +
+          '<button class="ghost-link" data-del-lesson="' + l.id + '">Удалить пару</button></div></div></div>';
+  }).join("");
+}
+function renderAll(){ renderHero(); renderDayPill(); renderSubjects(); renderWeek(); renderTimeline(); }
+
+function addNote(scope, ownerId, text){
+  const t = (text || "").trim();
+  if (!t) return;
+  const note = { id:uid(), text:t, ts:Date.now() };
+  if (scope === "subject"){ const s = subjById(ownerId); if (s){ s.notes.unshift(note); openSubjects.add(ownerId); } }
+  else if (scope === "lesson"){ const l = state.lessons.find(x => x.id === ownerId); if (l){ l.notes.unshift(note); openLessons.add(ownerId); } }
+  else { note.done = false; state.dayNotes.unshift(note); }
+  save(); buzz("light"); renderAll();
+  if (scope === "day" && sheetOpen === "day") openDayNotes();
+}
+
+/* ---------------- листы ---------------- */
+const shade = document.getElementById("shade");
+const sheet = document.getElementById("sheet");
+const sheetBody = document.getElementById("sheetBody");
+let sheetOpen = null;
+function showSheet(html, name){
+  const keep = {};
+  if (sheetOpen === (name || "x"))
+    sheetBody.querySelectorAll("[data-keep]").forEach(el => { keep[el.dataset.keep] = el.scrollTop; });
+  sheet.classList.remove("full");
+  sheetBody.innerHTML = html;
+  sheetBody.querySelectorAll("[data-keep]").forEach(el => {
+    if (keep[el.dataset.keep]) el.scrollTop = keep[el.dataset.keep];
+    const mark = () => { el.classList.toggle("more", el.scrollHeight - el.scrollTop - el.clientHeight > 4); el.classList.toggle("top", el.scrollTop > 4); };
+    mark(); requestAnimationFrame(mark); el.addEventListener("scroll", mark, { passive:true });
+  });
+  sheetOpen = name || "x";
+  shade.classList.add("on");
+  requestAnimationFrame(() => sheet.classList.add("on"));
+}
+/* заметки на день: свайп влево — матрица, вправо — список */
+let swX = 0, swY = 0, swT = 0, swOk = false;
+sheetBody.addEventListener("touchstart", e => {
+  swOk = sheetOpen === "day" && e.touches.length === 1 && !e.target.closest("textarea, input, [contenteditable]");
+  if (!swOk) return;
+  swX = e.touches[0].clientX; swY = e.touches[0].clientY; swT = Date.now();
+}, { passive:true });
+sheetBody.addEventListener("touchmove", () => { if (dragNote) swOk = false; }, { passive:true });
+sheetBody.addEventListener("touchend", e => {
+  if (!swOk || dragNote || Date.now() - justDragged < 500) return;
+  swOk = false;
+  const t = e.changedTouches[0], dx = t.clientX - swX, dy = t.clientY - swY;
+  if (Date.now() - swT > 700 || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+  const to = dx < 0 ? "matrix" : "list";
+  if (dayView() === to) return;
+  setDayView(to); buzz("light"); openDayNotes();
+  sheetBody.classList.remove("sw-l", "sw-r"); void sheetBody.offsetWidth;
+  sheetBody.classList.add(dx < 0 ? "sw-l" : "sw-r");
+}, { passive:true });
+function closeSheet(){
+  sheet.classList.remove("on");
+  shade.classList.remove("on");
+  sheetOpen = null;
+  stopRec(true);
+}
+shade.addEventListener("click", closeSheet);
+
+/* выбор вида заметок: обычный список или матрица Эйзенхауэра */
+
+/* ---------------- перетаскивание пунктов матрицы ----------------
+   Долгое нажатие на плашку поднимает её, дальше палец ведёт копию,
+   квадрант под пальцем подсвечивается, отпускание переносит пункт. */
+let dragNote = null, dragGhost = null, dragTimer = null, dragFrom = null, dragOver = null;
+
+function quadUnder(x, y){
+  const qs = document.querySelectorAll(".quad");
+  for (let i = 0; i < qs.length; i++){
+    const r = qs[i].getBoundingClientRect();
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return qs[i];
+  }
+  return null;
+}
+function dragCancel(){
+  clearTimeout(dragTimer); dragTimer = null;
+  if (dragGhost){ dragGhost.remove(); dragGhost = null; }
+  if (dragOver) dragOver.classList.remove("drop");
+  document.querySelectorAll(".lift").forEach(el => el.classList.remove("lift"));
+  document.body.classList.remove("dragging");
+  dragNote = null; dragFrom = null; dragOver = null;
+}
+function dragBegin(el, id, x, y){
+  dragNote = id; dragFrom = el;
+  el.classList.add("lift");
+  document.body.classList.add("dragging");
+  const r = el.getBoundingClientRect();
+  dragGhost = el.cloneNode(true);
+  dragGhost.className = (el.classList.contains("uchip") ? "uchip" : "qnote") + " ghost";
+  dragGhost.style.cssText = "position:fixed;z-index:200;pointer-events:none;width:" + r.width + "px;" +
+    "left:" + r.left + "px;top:" + r.top + "px;";
+  dragGhost.dataset.dx = (x - r.left); dragGhost.dataset.dy = (y - r.top);
+  document.body.appendChild(dragGhost);
+  buzz("medium");
+}
+function dragMove(x, y){
+  if (!dragGhost) return;
+  dragGhost.style.left = (x - dragGhost.dataset.dx) + "px";
+  dragGhost.style.top  = (y - dragGhost.dataset.dy) + "px";
+  const q = quadUnder(x, y);
+  if (q !== dragOver){
+    if (dragOver) dragOver.classList.remove("drop");
+    if (q) q.classList.add("drop");
+    dragOver = q;
+  }
+}
+function dragDrop(){
+  const id = dragNote, target = dragOver;
+  if (id && target){
+    const k = +target.dataset.quad;
+    const n = state.dayNotes.find(x => x.id === id);
+    if (n && n.quad !== k){ n.quad = k; save(); buzz("rigid"); dragCancel(); renderAll(); openDayNotes(); return; }
+  }
+  dragCancel();
+}
+/* Что можно тащить: пункт квадранта или плашку «не разложено» */
+function dragSource(target){
+  const chip = target.closest(".uchip");
+  if (chip) return { el:chip, id:chip.dataset.sort };
+  const el = target.closest(".qnote");
+  if (!el || target.closest(".qtick, .qacts")) return null;
+  const t = el.querySelector("[data-open-note]");
+  return t ? { el:el, id:t.dataset.openNote } : null;
+}
+const SLOP = 10;               /* дрожание пальца до 10px не отменяет зажатие */
+let pressX = 0, pressY = 0, justDragged = 0;
+function pressStart(target, x, y){
+  const src = dragSource(target);
+  if (!src) return;
+  pressX = x; pressY = y;
+  clearTimeout(dragTimer);
+  dragTimer = setTimeout(() => {
+    dragTimer = null;
+    try { window.getSelection().removeAllRanges(); } catch(e){}
+    dragBegin(src.el, src.id, x, y);
+  }, 420);
+}
+function pressMove(x, y){
+  if (dragNote){ dragMove(x, y); return true; }
+  if (dragTimer && Math.hypot(x - pressX, y - pressY) > SLOP){ clearTimeout(dragTimer); dragTimer = null; }
+  return false;
+}
+function pressEnd(){
+  clearTimeout(dragTimer); dragTimer = null;
+  if (!dragNote) return false;
+  justDragged = Date.now();
+  dragDrop();
+  return true;
+}
+
+/* Телефон: сенсорные события. Перетаскивание перехватывает касание целиком —
+   браузер не прокручивает лист и не выделяет текст под пальцем. */
+document.addEventListener("touchstart", e => {
+  if (e.touches.length !== 1) return;
+  const t = e.touches[0];
+  pressStart(e.target, t.clientX, t.clientY);
+}, { passive:true });
+document.addEventListener("touchmove", e => {
+  const t = e.touches[0];
+  if (t && pressMove(t.clientX, t.clientY)) e.preventDefault();
+  else if (dragNote) e.preventDefault();
+}, { passive:false });
+document.addEventListener("touchend", e => { if (pressEnd()) e.preventDefault(); }, { passive:false });
+document.addEventListener("touchcancel", () => { clearTimeout(dragTimer); dragTimer = null; dragCancel(); });
+
+/* Компьютер: мышь */
+document.addEventListener("pointerdown", e => { if (e.pointerType === "mouse") pressStart(e.target, e.clientX, e.clientY); });
+document.addEventListener("pointermove", e => { if (e.pointerType === "mouse") pressMove(e.clientX, e.clientY); }, { passive:true });
+document.addEventListener("pointerup", e => { if (e.pointerType === "mouse") pressEnd(); });
+
+/* долгое нажатие не открывает системное меню «Копировать / Выделить всё» */
+document.addEventListener("contextmenu", e => {
+  if (e.target.closest(".qnote, .uchip, .quad") || dragNote) e.preventDefault();
+});
+/* клик, прилетевший сразу после перетаскивания, не должен открыть заметку */
+document.addEventListener("click", e => {
+  if (Date.now() - justDragged < 400){ e.stopPropagation(); e.preventDefault(); }
+}, true);
+
+/* экран одной заметки */
+function openNoteView(id, back){
+  const n = state.dayNotes.find(x => x.id === id);
+  if (!n) return openDayNotes();
+  const q = (n.quad === undefined || n.quad === null) ? null : QUADS[n.quad];
+  showSheet('<button class="ghost-link back" id="nvBack">' + ICON.left + ' Назад</button>' +
+    '<div class="nvcard' + (n.done ? " done" : "") + '"' + (q ? ' style="--qc:' + q.color + '"' : "") + '>' +
+      '<div class="nvtop">' +
+        '<button class="nvtick' + (n.done ? " on" : "") + '" id="nvDone" aria-label="' +
+          (n.done ? "Вернуть в работу" : "Отметить выполненной") + '">' + ICON.tick + '</button>' +
+        (q ? '<span class="qtag" style="--qc:' + q.color + '">' + q.crit + '</span>'
+           : '<span class="qtag none">Не разложено</span>') +
+      '</div>' +
+      '<textarea class="nvt" id="nvTitle" rows="1" placeholder="Заголовок">' + esc(noteTitle(n)) + '</textarea>' +
+      '<textarea class="nvbody" id="nvBody" rows="2" placeholder="Нажмите, чтобы дописать подробности">' + esc(noteBody(n)) + '</textarea>' +
+      '<p class="nvtime">' + when(n.ts) + '</p>' +
+    '</div>' +
+    '<button class="ghost" id="nvMove">' + (q ? "Переместить в другой квадрант" : "Разложить по квадрантам") + '</button>' +
+    '<button class="ghost-link danger" id="nvDel">Удалить заметку</button>', "note-view");
+
+  const home = back || openDayNotes;
+  document.getElementById("nvBack").onclick = () => { document.activeElement && document.activeElement.blur(); renderAll(); home(); };
+  document.getElementById("nvDone").onclick = () => {
+    n.done = !n.done; save(); buzz("light"); renderAll(); openNoteView(id, back);
+  };
+  /* правка прямо в карточке: нажали — клавиатура, всё сохраняется по ходу набора */
+  const ti = document.getElementById("nvTitle"), bo = document.getElementById("nvBody");
+  const grow = el => { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; };
+  let tmr = null;
+  const commit = () => {
+    const t = ti.value.replace(/\s+/g, " ").trim();
+    if (t) { n.title = t; delete n.text; }
+    n.body = bo.value.trim();
+    save(); renderDayPill();
+  };
+  [ti, bo].forEach(el => {
+    grow(el);
+    el.addEventListener("input", () => { grow(el); clearTimeout(tmr); tmr = setTimeout(commit, 400); });
+    el.addEventListener("blur", () => { clearTimeout(tmr); commit(); });
+  });
+  /* перенос строки в заголовке не нужен — Enter переводит к подробностям */
+  ti.addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); bo.focus(); } });
+  ti.addEventListener("blur", () => { if (!ti.value.trim()) ti.value = noteTitle(n); });
+  document.getElementById("nvMove").onclick = () => openQuadPick(id, null, () => openNoteView(id, back));
+  document.getElementById("nvDel").onclick = () => {
+    state.dayNotes = state.dayNotes.filter(x => x.id !== id);
+    save(); buzz("medium"); renderAll(); home();
+  };
+}
+
+/* квадрант на весь экран */
+function openQuadFull(k){
+  const q = QUADS[k];
+  const items = quadNotes(k);
+  const back = () => openQuadFull(k);
+  showSheet('<button class="ghost-link back" id="qfBack">' + ICON.left + ' Все квадранты</button>' +
+    '<span class="qtag" style="--qc:' + q.color + '">' + q.name + '</span>' +
+    '<h3>' + q.crit + '</h3>' +
+    '<p class="sub">' + (items.length
+      ? items.length + " " + plural(items.length,"пункт","пункта","пунктов") +
+        (hideDone() && doneCount() ? " · выполненные скрыты" : "")
+      : "Пока пусто.") + '</p>' +
+    (items.length ? '<div class="fulllist">' + items.map(n =>
+      '<div class="fnote' + (n.done ? " done" : "") + '">' +
+        '<button class="qtick' + (n.done ? " on" : "") + '" data-tick="' + n.id + '" aria-label="Отметить">' + ICON.tick + '</button>' +
+        '<button class="ftx" data-open-note="' + n.id + '" data-in-quad="' + k + '"><b>' + esc(noteTitle(n)) + '</b>' +
+          (noteBody(n) ? '<span>' + esc(noteBody(n)) + '</span>' : "") + '</button>' +
+      '</div>').join("") + '</div>' : "") +
+    '<button class="primary" id="qfAdd">Добавить пункт</button>', "quad-full");
+  document.getElementById("qfBack").onclick = () => openDayNotes();
+  document.getElementById("qfAdd").onclick = () => openQuadForm(k, null, back);
+  sheet.classList.add("full");
+}
+
+function openViewChoice(after){
+  showSheet('<h3>Как вести заметки?</h3>' +
+    '<p class="sub">Выберите, что удобнее. Вид можно поменять в любой момент — переключатель будет вверху заметок.</p>' +
+    '<div class="pick">' +
+      '<button class="pick-row" data-vch="list"><span class="ic day">' + ICON.list + '</span>' +
+        '<span class="tx"><b>Обычный список</b><i>всё подряд, с галочками</i></span>' + ICON.right + '</button>' +
+      '<button class="pick-row" data-vch="matrix"><span class="ic subj">' + ICON.grid + '</span>' +
+        '<span class="tx"><b>Матрица Эйзенхауэра</b><i>четыре квадранта по срочности и важности</i></span>' + ICON.right + '</button>' +
+    '</div>' +
+    '<div class="mx-demo">' + QUADS.map(q =>
+      '<div style="--qc:' + q.color + '"><b>' + q.crit + '</b><i>' + q.name + '</i></div>').join("") + '</div>', "view-choice");
+  document.querySelectorAll("[data-vch]").forEach(b => {
+    b.onclick = () => { setDayView(b.dataset.vch); buzz("medium"); (after || openDayNotes)(); };
+  });
+}
+
+function openDayNotes(){
+  if (state.dayView !== "list" && state.dayView !== "matrix") return openViewChoice(openDayNotes);
+  const d = new Date();
+  const head = '<h3>Заметки на день</h3><p class="sub">' + DAYS_FULL[todayIdx()] + ", " +
+    d.getDate() + " " + MONTHS[d.getMonth()] + '</p>' +
+    '<div class="seg" id="viewSeg">' +
+      '<button class="' + (dayView() === "list" ? "on" : "") + '" data-view="list">Списком</button>' +
+      '<button class="' + (dayView() === "matrix" ? "on" : "") + '" data-view="matrix">Матрица</button>' +
+    '</div>' +
+    '<p class="swipe-hint">или смахните влево / вправо</p>' +
+    (doneCount()
+      ? '<button class="donetgl' + (hideDone() ? " on" : "") + '" id="doneTgl">' +
+          (hideDone() ? ICON.eyeOff : ICON.eye) +
+          (hideDone() ? "Показать выполненные" : "Скрыть выполненные") +
+          '<span>' + doneCount() + '</span></button>'
+      : "");
+  showSheet(head + (dayView() === "matrix" ? matrixHTML() : dayListHTML()), "day");
+  document.querySelectorAll("#viewSeg [data-view]").forEach(b => {
+    b.onclick = () => { setDayView(b.dataset.view); buzz("light"); openDayNotes(); };
+  });
+  const dt = document.getElementById("doneTgl");
+  if (dt) dt.onclick = () => { state.hideDone = !state.hideDone; save(); buzz("light"); openDayNotes(); };
+}
+function dayListHTML(){
+  const src = visible(state.dayNotes);
+  const list = src.length
+    ? '<div class="notes">' + src.map(n =>
+        '<div class="note' + (n.done ? " done" : "") + '">' +
+          '<button class="tick' + (n.done ? " on" : "") + '" data-tick="' + n.id + '" aria-label="Отметить">' + ICON.tick + '</button>' +
+          '<p>' + esc(noteTitle(n)) + (noteBody(n) ? '<span class="nbody">' + esc(noteBody(n)) + '</span>' : "") +
+            '<time>' + when(n.ts) + '</time></p>' +
+          '<button class="del" data-del="day" data-owner="-" data-note="' + n.id + '" aria-label="Удалить">' + ICON.trash + '</button></div>').join("") + '</div>'
+    : '<p class="empty">' + (state.dayNotes.length ? "Все задачи выполнены." : "На сегодня ничего не записано.") + '</p>';
+  return list + composerHTML("day","-");
+}
+function matrixHTML(){
+  const un = unsorted();
+  const strip = un.length
+    ? '<div class="unsorted"><p class="ulabel">Не разложено — выберите квадрант</p>' +
+      un.map(n => '<button class="uchip" data-sort="' + n.id + '">' + esc(noteTitle(n)) + '</button>').join("") + '</div>'
+    : "";
+  const grid = '<div class="matrix">' + QUADS.map(q => {
+    const items = quadNotes(q.k);
+    const open = items.filter(n => !n.done).length;
+    return '<div class="quad" data-quad-box data-quad="' + q.k + '" style="--qc:' + q.color + '">' +
+      '<button class="qhead" data-full="' + q.k + '"><b>' + q.crit + '</b><i>' + q.name +
+        '<span class="exp">' + ICON.expand + '</span></i>' +
+        (open ? '<span class="qn">' + open + '</span>' : "") + '</button>' +
+      (items.length
+        ? '<div class="qlist" data-keep="q' + q.k + '">' + items.map(n =>
+            '<div class="qnote' + (n.done ? " done" : "") + '">' +
+              '<button class="qtick' + (n.done ? " on" : "") + '" data-tick="' + n.id + '" aria-label="Отметить">' + ICON.tick + '</button>' +
+              '<button class="qtitle" data-open-note="' + n.id + '">' + esc(noteTitle(n)) +
+                (noteBody(n) ? '<i class="chev">' + ICON.note + '</i>' : "") + '</button>' +
+            '</div>').join("") + '</div>'
+        : '<p class="qempty">пусто</p>') +
+      '<button class="qadd" data-add="' + q.k + '">' + ICON.plusSm + '</button></div>';
+  }).join("") + '</div>' +
+  (state.dayNotes.length ? '<p class="mhint">Удерживайте пункт, чтобы перетащить его в другой квадрант</p>' : "");
+  return strip + grid;
+}
+/* форма пункта матрицы: заголовок + раскрытый текст */
+function openQuadForm(quad, noteId, back){
+  const n = noteId ? state.dayNotes.find(x => x.id === noteId) : null;
+  const q = QUADS[quad];
+  showSheet('<button class="ghost-link back" id="qBack">' + ICON.left + ' Назад</button>' +
+    '<h3>' + (n ? "Изменить пункт" : q.crit) + '</h3>' +
+    '<p class="sub">' + q.name + '. Коротко — в заголовок, подробности — ниже.</p>' +
+    '<input class="field" id="qTitle" placeholder="Заголовок" value="' + (n ? esc(noteTitle(n)) : "") + '">' +
+    '<textarea class="field" id="qBody" rows="4" placeholder="Подробности (необязательно)">' + (n ? esc(noteBody(n)) : "") + '</textarea>' +
+    (voiceSupported ? '<button class="ghost-link" id="qVoice">Продиктовать подробности</button>' : "") +
+    '<button class="primary" id="qSave">Сохранить</button>', "day-form");
+
+  const ti = document.getElementById("qTitle"), bo = document.getElementById("qBody");
+  document.getElementById("qBack").onclick = () => { stopRec(true); (back || openDayNotes)(); };
+  const vb = document.getElementById("qVoice");
+  if (vb) vb.onclick = () => {
+    if (recording){ stopRec(false); vb.textContent = "Продиктовать подробности"; return; }
+    const base = bo.value.trim();
+    if (!startRec(t => { bo.value = (base ? base + " " : "") + t; }, () => { vb.textContent = "Продиктовать подробности"; }))
+      return showRecError(NO_VOICE);
+    vb.textContent = "Остановить запись";
+  };
+  document.getElementById("qSave").onclick = () => {
+    stopRec(true);
+    const title = ti.value.trim();
+    if (!title){ ti.focus(); return; }
+    if (n){ n.title = title; n.body = bo.value.trim(); n.quad = quad; delete n.text; }
+    else state.dayNotes.unshift({ id:uid(), title:title, body:bo.value.trim(), quad:quad, done:false, ts:Date.now() });
+    save(); buzz("medium"); renderAll(); (back || openDayNotes)();
+  };
+  ti.focus();
+}
+/* выбор квадранта для существующей или новой заметки */
+function openQuadPick(noteId, onPick, back){
+  showSheet('<button class="ghost-link back" id="qpBack">' + ICON.left + ' Назад</button>' +
+    '<h3>В какой квадрант?</h3>' +
+    '<p class="sub">Матрица Эйзенхауэра: сначала решаем, насколько это срочно и важно.</p>' +
+    '<div class="pick">' + QUADS.map(q =>
+      '<button class="pick-row" data-quad="' + q.k + '">' +
+        '<span class="dot" style="background:' + q.color + '"></span>' +
+        '<span class="tx"><b>' + q.crit + '</b><i>' + q.name + '</i></span>' + ICON.right + '</button>').join("") +
+    '</div>', "day-pick");
+  document.getElementById("qpBack").onclick = () => (back || openDayNotes)();
+  document.querySelectorAll("[data-quad]").forEach(b => {
+    b.onclick = () => {
+      const k = +b.dataset.quad;
+      buzz("light");
+      if (onPick) return onPick(k);
+      const n = state.dayNotes.find(x => x.id === noteId);
+      if (n){ n.quad = k; save(); renderAll(); }
+      (back || openDayNotes)();
+    };
+  });
+}
+
+function openSubjectForm(id){
+  const s = id ? subjById(id) : null;
+  const initial = s ? (s.color || PALETTE[0]) : PALETTE[state.subjects.length % PALETTE.length];
+  showSheet(
+    '<h3>' + (s ? "Изменить предмет" : "Новый предмет") + '</h3>' +
+    '<p class="sub">' + (voiceSupported ? "Можно продиктовать: «Матанализ, Иванова, 214»." : "Заполните поля.") + '</p>' +
+    (voiceSupported ? micCTA("Продиктовать") + '<div style="height:14px"></div>' : "") +
+    '<input class="field" id="fName" placeholder="Название предмета" value="' + (s ? esc(s.name) : "") + '">' +
+    '<input class="field" id="fTeacher" placeholder="Преподаватель" value="' + (s ? esc(s.teacher) : "") + '">' +
+    '<input class="field" id="fRoom" placeholder="Аудитория" value="' + (s ? esc(s.room) : "") + '">' +
+    '<p class="chip-label">Цвет предмета</p><div class="chips" id="fColors">' +
+      PALETTE.map(c => '<button class="chip swatch" data-color="' + c + '" style="background:' + c +
+        (c === initial ? ";box-shadow:0 0 0 3px var(--sheet),0 0 0 5px " + c : "") + '" aria-label="Цвет"></button>').join("") + '</div>' +
+    '<button class="primary" id="saveSubject">Сохранить</button>' +
+    (s ? '<button class="ghost" id="deleteSubject">Удалить предмет</button>' : "") +
+    '<p class="hint" id="vHint"></p>', "subject-form");
+
+  let color = initial;
+  const mic = document.getElementById("introMic");
+  if (mic) mic.onclick = () => {
+    if (recording){ stopRec(false); return; }
+    buzz("medium");
+    const ok = startRec((text, done) => {
+      const h = document.getElementById("micHint");
+      if (h) h.textContent = text || "Говорите…";
+      if (done && text){
+        const p = parseSubject(text);
+        if (p.name) document.getElementById("fName").value = p.name;
+        if (p.teacher) document.getElementById("fTeacher").value = p.teacher;
+        if (p.room) document.getElementById("fRoom").value = p.room;
+        if (h) h.textContent = "Проверьте поля ниже";
+      }
+    });
+    if (!ok) showRecError(NO_VOICE);
+  };
+  document.getElementById("fColors").onclick = e => {
+    const b = e.target.closest("[data-color]"); if (!b) return;
+    color = b.dataset.color;
+    Array.prototype.forEach.call(b.parentNode.children, c => c.style.boxShadow = "none");
+    b.style.boxShadow = "0 0 0 3px var(--sheet),0 0 0 5px " + color;
+    buzz("light");
+  };
+  document.getElementById("saveSubject").onclick = () => {
+    const name = document.getElementById("fName").value.trim();
+    if (!name){ document.getElementById("fName").focus(); return; }
+    const teacher = document.getElementById("fTeacher").value.trim();
+    const room = document.getElementById("fRoom").value.trim();
+    if (s){ s.name = name; s.teacher = teacher; s.room = room; s.color = color; }
+    else state.subjects.push({ id:uid(), name, teacher, room, color, notes:[] });
+    save(); buzz("medium"); renderAll(); closeSheet();
+  };
+  const del = document.getElementById("deleteSubject");
+  if (del) del.onclick = () => {
+    state.subjects = state.subjects.filter(x => x.id !== id);
+    state.lessons = state.lessons.filter(l => l.subjectId !== id);
+    save(); renderAll(); closeSheet();
+  };
+}
+
+function openLessonForm(){
+  if (!state.subjects.length){ openSubjectForm(null); return; }
+  showSheet(
+    '<h3>Новая пара</h3><p class="sub">' +
+      (voiceSupported ? "Можно продиктовать: «В понедельник матанализ в 9:00»." : "Выберите предмет, день и время.") + '</p>' +
+    (voiceSupported ? micCTA("Продиктовать") + '<div style="height:8px"></div>' : "") +
+    '<p class="chip-label">Предмет</p>' +
+    '<div class="chips" id="lsSubjects">' + state.subjects.map((s,i) =>
+      '<button class="chip' + (i===0 ? " on" : "") + '" data-pick="' + s.id + '">' + esc(s.name) + '</button>').join("") + '</div>' +
+    '<p class="chip-label">День недели</p><div class="chips" id="lsDays">' + DAYS.map((d,i) =>
+      '<button class="chip' + (i===selectedDay ? " on" : "") + '" data-day-pick="' + i + '">' + d + '</button>').join("") + '</div>' +
+    '<p class="chip-label">Время</p>' +
+    '<div class="field-row" style="margin-top:10px"><input class="field" id="fTime" type="time" value="09:00"><input class="field" id="fEnd" type="time" value="10:30"></div>' +
+    '<button class="primary" id="saveLesson">Добавить в расписание</button>' +
+    '<p class="hint" id="vHint"></p>', "lesson-form");
+
+  let pickSubject = state.subjects[0].id, pickDay = selectedDay;
+  const timeEl = document.getElementById("fTime"), endEl = document.getElementById("fEnd");
+  const mark = (id, attr, val) => Array.prototype.forEach.call(document.getElementById(id).children,
+    c => c.classList.toggle("on", c.dataset[attr] === String(val)));
+
+  document.getElementById("lsSubjects").onclick = e => {
+    const b = e.target.closest("[data-pick]"); if (!b) return;
+    pickSubject = b.dataset.pick; mark("lsSubjects","pick",pickSubject); buzz("light");
+  };
+  document.getElementById("lsDays").onclick = e => {
+    const b = e.target.closest("[data-day-pick]"); if (!b) return;
+    pickDay = +b.dataset.dayPick; mark("lsDays","dayPick",pickDay); buzz("light");
+  };
+  timeEl.onchange = () => { endEl.value = addMinutes(timeEl.value || "09:00", 90); };
+
+  const mic = document.getElementById("introMic");
+  if (mic) mic.onclick = () => {
+    if (recording){ stopRec(false); return; }
+    buzz("medium");
+    const ok = startRec((text, done) => {
+      const h = document.getElementById("micHint");
+      if (h) h.textContent = text || "Говорите…";
+      if (done && text){
+        const p = parseLesson(text);
+        if (p.subjectId){ pickSubject = p.subjectId; mark("lsSubjects","pick",pickSubject); }
+        if (p.day !== null){ pickDay = p.day; mark("lsDays","dayPick",pickDay); }
+        if (p.time){ timeEl.value = p.time; endEl.value = addMinutes(p.time, 90); }
+        if (h) h.textContent = "Проверьте выбранное ниже";
+      }
+    });
+    if (!ok) showRecError(NO_VOICE);
+  };
+  document.getElementById("saveLesson").onclick = () => {
+    state.lessons.push({ id:uid(), day:pickDay, subjectId:pickSubject,
+      time:timeEl.value || "09:00", end:endEl.value || "", notes:[] });
+    selectedDay = pickDay;
+    save(); buzz("medium"); renderAll(); closeSheet();
+  };
+}
+
+function openVoice(target){
+  let recTarget = target || { scope:"day", owner:"-" };
+  const targets = [{ scope:"day", owner:"-", label:"На день" }]
+    .concat(state.subjects.map(s => ({ scope:"subject", owner:s.id, label:s.name })));
+  state.lessons.filter(l => l.day === selectedDay).forEach(l => {
+    const s = subjById(l.subjectId);
+    targets.push({ scope:"lesson", owner:l.id, label:l.time + " " + (s ? s.name : "пара") });
+  });
+  showSheet(
+    '<h3>Голосовая заметка</h3><p class="sub">Говорите — расшифровка появится ниже, её можно поправить.</p>' +
+    '<div class="wave" id="vWave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>' +
+    '<textarea id="vText" placeholder="Здесь появится текст. Можно писать и руками."></textarea>' +
+    '<button class="ghost-link" id="vToggle">Остановить запись</button>' +
+    '<p class="chip-label">Куда сохранить</p>' +
+    '<div class="chips" id="vTargets">' + targets.map(t =>
+      '<button class="chip' + (t.scope===recTarget.scope && t.owner===recTarget.owner ? " on" : "") +
+      '" data-t="' + t.scope + '" data-o="' + t.owner + '">' + esc(t.label) + '</button>').join("") + '</div>' +
+    '<button class="primary" id="vSave" disabled>Сохранить заметку</button>' +
+    '<p class="hint" id="vHint"></p>', "voice");
+
+  const ta = document.getElementById("vText");
+  const saveBtn = document.getElementById("vSave");
+  ta.addEventListener("input", () => { saveBtn.disabled = !ta.value.trim(); });
+  document.getElementById("vTargets").onclick = e => {
+    const b = e.target.closest("[data-t]"); if (!b) return;
+    recTarget = { scope:b.dataset.t, owner:b.dataset.o };
+    Array.prototype.forEach.call(b.parentNode.children, c => c.classList.remove("on"));
+    b.classList.add("on"); buzz("light");
+  };
+  const sinkFn = text => { ta.value = text; saveBtn.disabled = !text.trim(); };
+  document.getElementById("vToggle").onclick = () => {
+    if (recording) stopRec(false);
+    else if (!startRec(t => sinkFn((ta.value ? ta.value + " " : "") + t))) showRecError(NO_VOICE);
+  };
+  saveBtn.onclick = () => { stopRec(true); addNote(recTarget.scope, recTarget.owner, ta.value); closeSheet(); };
+  if (!startRec(sinkFn)) showRecError(NO_VOICE);
+}
+
+/* ---------------- разбор длинной диктовки ---------------- */
+const FILLERS = /(^|\s)(э+|эм+|мм+|ну|типа|как бы|значит|короче|в общем|это самое|вот)(?=[\s,]|$)/gi;
+const CUES = /(балл|титр|зачёт|зачет|экзамен|дедлайн|лаб|практикум|учебник|библиотек|конспект|доклад|реферат|курсов|семинар|тест|контрольн|отработ|пересдач|презентац|задани|сдать|сдавать|принима|проверя|требу|нельзя|нужно|надо|важно)/i;
+const COURSES = ["физическая культура","физкультура","физра","математический анализ","матанализ",
+  "линейная алгебра","дискретная математика","теория вероятностей","высшая математика","математика",
+  "алгебра","геометрия","микроэкономика","макроэкономика","эконометрика","экономика","история",
+  "философия","английский","немецкий","французский","программирование","информатика","базы данных",
+  "правоведение","право","статистика","химия","физика","биология","социология","психология",
+  "менеджмент","маркетинг","бухгалтерский учёт","бухучёт","логика","культурология","экология",
+  "безопасность жизнедеятельности","политология","антропология","география","литература","русский язык"];
+const NUM_STEMS = [
+  ["одиннадцат",11],["двенадцат",12],["тринадцат",13],["четырнадцат",14],["пятнадцат",15],
+  ["шестнадцат",16],["семнадцат",17],["восемнадцат",18],["девятнадцат",19],
+  ["девяност",90],["восемьдесят",80],["восьмидесят",80],["семьдесят",70],["шестьдесят",60],
+  ["пятьдесят",50],["сорок",40],["тридцат",30],["двадцат",20],
+  ["четырест",400],["пятьсот",500],["трист",300],["двест",200],["сот",100],["сто",100],
+  ["перв",1],["втор",2],["трет",3],["четверт",4],["четыр",4],["пятидесят",50],["пят",5],
+  ["шест",6],["седьм",7],["сем",7],["восьм",8],["восем",8],["девят",9],["десят",10],
+  ["один",1],["дв",2],["тр",3]
+];
+const norm = s => String(s).toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim();
+const titleCase = s => s.split(/\s+/).map(w => cap(w.toLowerCase())).join(" ");
+
+function wordNum(tokens){
+  let total = 0, found = false;
+  tokens.forEach(tok => {
+    let s = norm(tok).replace(/[^а-я]/g,"");
+    let guard = 0;
+    while (s.length > 1 && guard++ < 3){
+      let hit = null;
+      for (let i = 0; i < NUM_STEMS.length; i++){
+        if (s.indexOf(NUM_STEMS[i][0]) === 0){ hit = NUM_STEMS[i]; break; }
+      }
+      if (!hit) break;
+      total += hit[1]; found = true;
+      s = s.slice(hit[0].length);
+    }
+  });
+  return found && total > 0 ? total : null;
+}
+function extractRoom(text){
+  let m = text.match(/(?:кабинет[а-яё]*|аудитори[а-яё]*|ауд\.?|каб\.?)\s*(?:номер\s*)?№?\s*(\d{1,4}[а-яА-Я]?)/i);
+  if (m) return { room:m[1], rest:text.replace(m[0]," ") };
+  m = text.match(/(\d{1,4}[а-яА-Я]?)\s*(?:-?[йыоая]\s*)?(?:кабинет[а-яё]*|аудитори[а-яё]*)/i);
+  if (m) return { room:m[1], rest:text.replace(m[0]," ") };
+  const isNum = t => !!wordNum([t]);
+  m = text.match(/((?:[а-яёА-ЯЁ]+\s+){1,3})(кабинет[а-яё]*|аудитори[а-яё]*)/i);
+  if (m){
+    const toks = m[1].trim().split(/\s+/);
+    for (let k = toks.length; k >= 1; k--){
+      const tail = toks.slice(toks.length - k);
+      if (!tail.every(isNum)) continue;
+      const n = wordNum(tail);
+      if (!n) continue;
+      const keep = toks.slice(0, toks.length - k).join(" ");
+      return { room:String(n), rest:text.replace(m[0], " " + keep + " ") };
+    }
+  }
+  /* числительные без слова «кабинет»: «пятьсот девятнадцатая» */
+  const toksAll = text.split(/\s+/).filter(Boolean);
+  for (let start = 0; start < toksAll.length; start++){
+    for (let len = Math.min(3, toksAll.length - start); len >= 2; len--){
+      const run = toksAll.slice(start, start + len);
+      if (!run.every(isNum)) continue;
+      const n = wordNum(run);
+      if (!n || n < 100 || n > 9999) continue;
+      const rest = toksAll.slice(0, start).concat(toksAll.slice(start + len)).join(" ");
+      return { room:String(n), rest:rest };
+    }
+  }
+  m = text.match(/(кабинет[а-яё]*|аудитори[а-яё]*)\s+((?:[а-яёА-ЯЁ]+\s*){1,3})/i);
+  if (m){
+    const toks = m[2].trim().split(/\s+/);
+    for (let k = toks.length; k >= 1; k--){
+      const head = toks.slice(0, k);
+      if (!head.every(isNum)) continue;
+      const n = wordNum(head);
+      if (!n) continue;
+      const keep = toks.slice(k).join(" ");
+      return { room:String(n), rest:text.replace(m[0], " " + keep + " ") };
+    }
+  }
+  return { room:"", rest:text };
+}
+function extractTeacher(text){
+  let m = text.match(/([а-яёА-ЯЁ]{3,})\s+([а-яёА-ЯЁ]{2,})\s+([а-яёА-ЯЁ]+(?:ович|овича|евич|евича|ьич|овна|овны|евна|евны|ична|инична))/i);
+  if (m) return { teacher:titleCase(m[0]), rest:text.replace(m[0]," ") };
+  m = text.match(/([а-яёА-ЯЁ]{2,})\s+([а-яёА-ЯЁ]+(?:ович|евич|овна|евна|ична))/i);
+  if (m) return { teacher:titleCase(m[0]), rest:text.replace(m[0]," ") };
+  m = text.match(/([А-ЯЁ][а-яё]+)\s+([А-ЯЁ]\.\s?[А-ЯЁ]\.)/);
+  if (m) return { teacher:m[0].trim(), rest:text.replace(m[0]," ") };
+  return { teacher:"", rest:text };
+}
+function findCourse(text){
+  const t = norm(text);
+  for (let i = 0; i < state.subjects.length; i++){
+    const k = norm(state.subjects[i].name).slice(0, 6);
+    if (k.length >= 4 && t.indexOf(k) >= 0) return { existing:state.subjects[i], name:state.subjects[i].name };
+  }
+  for (let i = 0; i < COURSES.length; i++){
+    const k = norm(COURSES[i]).slice(0, 6);
+    if (k.length >= 4 && t.indexOf(k) >= 0) return { existing:null, name:cap(COURSES[i]) };
+  }
+  return null;
+}
+/* ---------------- разбор с явным адресом ----------------
+   Формат: сначала куда, потом что.
+     «предмет математика Ларин Николай Васильевич пятьсот девятнадцатая»
+     «заметка к математике нужно два титра»
+     «заметка на день забрать справку в деканате»                       */
+const CMD_RE = /(?:^|[\s,.;!?—-]+)(предмет[а-яё]*|дисциплин[а-яё]*|заметк[а-яё]*|пометк[а-яё]*|напомин[а-яё]*)(?=[\s,:.]|$)/gi;
+const DAY_TARGET = /^\s*(?:на\s+)?(?:день|сегодня|дня|завтра)(?=[\s,:.-]|$)[\s,:.-]*/i;
+const TO_SUBJ = /^\s*(?:к|ко|по|про|для|об|о)(?=\s)[\s,:.-]*/i;
+
+function stem(w){ return norm(w).replace(/[^а-яa-z0-9]/gi,"").slice(0,5); }
+/* ищем в начале текста название уже известного предмета, с поправкой на падежи */
+function matchSubjectPrefix(text, extra){
+  const pool = state.subjects.map(x => ({ id:x.id, name:x.name }))
+    .concat(extra || []);
+  const words = text.split(/\s+/).filter(Boolean);
+  let best = null;
+  pool.forEach(sub => {
+    const sw = String(sub.name).split(/\s+/).filter(Boolean);
+    if (!sw.length || sw.length > words.length) return;
+    for (let n = Math.min(sw.length, words.length); n >= 1; n--){
+      let ok = true;
+      for (let i = 0; i < n; i++){
+        if (!stem(sw[i]) || stem(sw[i]) !== stem(words[i])){ ok = false; break; }
+      }
+      if (ok && (!best || n > best.n)) best = { sub:sub, n:n };
+      if (ok) break;
+    }
+  });
+  if (!best) return null;
+  return { sub:best.sub, rest:words.slice(best.n).join(" ").trim() };
+}
+
+function analyzeCommands(raw){
+  const clean = String(raw).replace(FILLERS," ").replace(/\s+/g," ").trim();
+  if (!clean) return null;
+  CMD_RE.lastIndex = 0;
+  const hits = [];
+  let m;
+  while ((m = CMD_RE.exec(clean))){
+    hits.push({ word:m[1].toLowerCase(), at:m.index + m[0].indexOf(m[1]), len:m[1].length });
+  }
+  if (!hits.length) return null;
+
+  const items = [];
+  const made = [];
+  let tmpN = 0;
+  hits.forEach((h, k) => {
+    const body = clean.slice(h.at + h.len, k + 1 < hits.length ? hits[k+1].at : clean.length)
+      .replace(/^[\s,:.-]+/, "").trim();
+    if (!body) return;
+
+    if (/^(предмет|дисциплин)/.test(h.word)){
+      let rest = body;
+      const r = extractRoom(rest); rest = r.rest;
+      const t = extractTeacher(rest); rest = t.rest;
+      rest = rest.replace(/\bпредмет[а-яё]*|препод[а-яё]*|аудитор[а-яё]*|кабинет[а-яё]*/gi," ")
+                 .replace(/[,.;]+/g," ").replace(/\s+/g," ").trim();
+      const course = findCourse(rest);
+      const name = course ? course.name : cap(rest);
+      if (!name && !t.teacher && !r.room) return;
+      const tmp = "tmp" + (++tmpN);
+      items.push({
+        kind:"subject", tmp:tmp,
+        existingId: course && course.existing ? course.existing.id : null,
+        name:name || "", teacher:t.teacher || "", room:r.room || "",
+        color: course && course.existing ? course.existing.color
+             : PALETTE[(state.subjects.length + tmpN - 1) % PALETTE.length]
+      });
+      if (name) made.push({ id:tmp, name:name });
+      return;
+    }
+
+    /* заметка */
+    if (DAY_TARGET.test(body)){
+      const txt = body.replace(DAY_TARGET,"").trim();
+      if (txt) items.push({ kind:"note", text:cap(txt), target:"day" });
+      return;
+    }
+    const afterPrep = body.replace(TO_SUBJ,"");
+    const hit = matchSubjectPrefix(afterPrep, made);
+    if (hit && hit.rest){
+      items.push({ kind:"note", text:cap(hit.rest), target:hit.sub.id });
+      return;
+    }
+    const course = findCourse(afterPrep);
+    if (course && course.existing){
+      items.push({ kind:"note", text:cap(afterPrep), target:course.existing.id });
+      return;
+    }
+    items.push({ kind:"note", text:cap(body), target:"day" });
+  });
+  return items.length ? items : null;
+}
+
+function analyze(raw){
+  /* если в речи есть явные адреса — разбираем строго по ним */
+  const byCommand = analyzeCommands(raw);
+  if (byCommand) return byCommand;
+  const clean = String(raw).replace(FILLERS," ").replace(/\s+/g," ").trim();
+  if (!clean) return [];
+  const blocks = clean
+    .split(/[.!?;]+|\s(?:а\s+)?(?:дальше|далее|потом|затем|кстати|также|так же|ещё|еще|запиши|запишем|заметка)[,\s]+/i)
+    .map(s => s.trim()).filter(s => s.length > 1);
+
+  const items = [];
+  let tmpN = 0;
+  blocks.forEach(block => {
+    const clauses = block.split(/\s*,\s*/).map(s => s.trim()).filter(Boolean);
+    let subj = null;
+    const notes = [];
+    clauses.forEach(cl => {
+      let rest = cl;
+      const r = extractRoom(rest); rest = r.rest;
+      const tch = extractTeacher(rest); rest = tch.rest;
+      const stripped = rest.replace(/учебн[а-яё]*\s+курс[а-яё]*|предмет[а-яё]*|препод[а-яё]*/gi," ").replace(/\s+/g," ").trim();
+      const course = findCourse(stripped);
+      const noteish = CUES.test(cl);
+      const words = stripped ? stripped.split(/\s+/).length : 0;
+
+      if (r.room || tch.teacher || course){
+        if (!subj) subj = { name:"", teacher:"", room:"", existing:null };
+        if (r.room && !subj.room) subj.room = r.room;
+        if (tch.teacher && !subj.teacher) subj.teacher = tch.teacher;
+        if (course && !subj.name){ subj.name = course.name; subj.existing = course.existing; }
+        else if (!course && !subj.name && stripped && words <= 3 && !noteish) subj.name = cap(stripped);
+        if (noteish && words >= 2) notes.push(cl);
+      } else if (words >= 2 || noteish){
+        notes.push(cl);
+      }
+    });
+
+    if (subj && (subj.name || subj.teacher || subj.room)){
+      const tmp = "tmp" + (++tmpN);
+      items.push({
+        kind:"subject", tmp:tmp,
+        existingId: subj.existing ? subj.existing.id : null,
+        name: subj.name || "", teacher: subj.teacher || "", room: subj.room || "",
+        color: subj.existing ? subj.existing.color : PALETTE[(state.subjects.length + tmpN - 1) % PALETTE.length]
+      });
+      notes.forEach(n => items.push({ kind:"note", text:cap(n), target: subj.existing ? subj.existing.id : tmp }));
+    } else {
+      let buf = [], bufTarget = null;
+      const flush = () => {
+        if (!buf.length) return;
+        items.push({ kind:"note", text:cap(buf.join(", ")), target:bufTarget || "day" });
+        buf = []; bufTarget = null;
+      };
+      notes.forEach(n => {
+        const c = findCourse(n);
+        const target = c && c.existing ? c.existing.id : "day";
+        if (bufTarget !== null && target !== bufTarget) flush();
+        bufTarget = target;
+        buf.push(n);
+      });
+      flush();
+    }
+  });
+  return items;
+}
+
+/* ---------------- экран ассистента ---------------- */
+let review = null;
+let asrText = "";
+
+/* ---------------- голосовой мастер: шаг 1 — куда, шаг 2 — что ---------------- */
+let asst = null;
+
+function openAssistant(){
+  asst = null;
+  stopRec(true);
+  showSheet(
+    '<h3>Куда записать?</h3>' +
+    '<p class="sub">Сначала выберите место, потом продиктуете само содержимое.</p>' +
+    '<div class="pick">' +
+      '<button class="pick-row" data-go="day"><span class="ic day">' + ICON.sun + '</span>' +
+        '<span class="tx"><b>Заметка на день</b><i>дела и напоминания на сегодня</i></span>' + ICON.right + '</button>' +
+      '<button class="pick-row" data-go="subject"><span class="ic subj">' + ICON.book + '</span>' +
+        '<span class="tx"><b>Заметка к предмету</b><i>' +
+          (state.subjects.length ? state.subjects.length + " " + plural(state.subjects.length,"предмет","предмета","предметов")
+                                 : "предметов пока нет") + '</i></span>' + ICON.right + '</button>' +
+      '<button class="pick-row" data-go="lesson"><span class="ic les">' + ICON.clock + '</span>' +
+        '<span class="tx"><b>Заметка к паре</b><i>к занятию на конкретную дату</i></span>' + ICON.right + '</button>' +
+      '<button class="pick-row" data-go="new"><span class="ic new">' + ICON.plusSm + '</span>' +
+        '<span class="tx"><b>Новый предмет</b><i>название, преподаватель, аудитория</i></span>' + ICON.right + '</button>' +
+    '</div>', "assistant");
+
+  document.querySelectorAll("[data-go]").forEach(btn => {
+    btn.onclick = () => {
+      buzz("light");
+      const go = btn.dataset.go;
+      if (go === "day"){
+        if (dayView() !== "matrix") return asstContent({ scope:"day", owner:"", label:"Заметки на день" });
+        /* в матрице сначала квадрант — это тоже ответ на вопрос «куда» */
+        return openQuadPick(null, k => asstContent({
+          scope:"day", owner:"", quad:k, label:QUADS[k].crit, back:openAssistant
+        }));
+      }
+      if (go === "subject") return asstPickSubject();
+      if (go === "lesson") return asstPickDay();
+      closeSheet(); openSubjectForm(null);
+    };
+  });
+}
+
+function asstBack(html, name, onBack){
+  showSheet('<button class="ghost-link back" id="asstBack">' + ICON.left + ' Назад</button>' + html, name);
+  document.getElementById("asstBack").onclick = () => { buzz("light"); onBack(); };
+}
+
+function asstPickSubject(){
+  if (!state.subjects.length){
+    return asstBack('<h3>Предметов пока нет</h3>' +
+      '<p class="sub">Сначала добавьте предмет — потом к нему можно будет писать заметки.</p>' +
+      '<button class="primary" id="asstAddSubj">Добавить предмет</button>', "assistant", openAssistant),
+      document.getElementById("asstAddSubj").onclick = () => { closeSheet(); openSubjectForm(null); };
+  }
+  asstBack('<h3>К какому предмету?</h3>' +
+    '<div class="pick">' + state.subjects.map(s =>
+      '<button class="pick-row" data-subj="' + s.id + '">' +
+        '<span class="dot" style="background:' + s.color + '"></span>' +
+        '<span class="tx"><b>' + esc(s.name) + '</b><i>' +
+          esc([s.teacher, s.room ? "ауд. " + s.room : ""].filter(Boolean).join(", ") || "без преподавателя") +
+        '</i></span>' + ICON.right + '</button>').join("") + '</div>', "assistant", openAssistant);
+  document.querySelectorAll("[data-subj]").forEach(b => {
+    b.onclick = () => {
+      const sub = subjById(b.dataset.subj);
+      buzz("light");
+      asstContent({ scope:"subject", owner:sub.id, label:sub.name, back:asstPickSubject });
+    };
+  });
+}
+
+/* ближайшие две недели, только дни, где есть пары */
+function asstDays(){
+  const out = [];
+  const start = todayIdx();
+  for (let k = 0; k < 14 && out.length < 10; k++){
+    const idx = (start + k) % 7;
+    const off = Math.floor((start + k) / 7);
+    const list = lessonsFor(idx, off);
+    if (list.length) out.push({ idx:idx, off:off, date:dateOfDay(idx, off), list:list });
+  }
+  return out;
+}
+function asstPickDay(){
+  const days = asstDays();
+  if (!days.length){
+    return asstBack('<h3>Пар не нашлось</h3>' +
+      '<p class="sub">В ближайшие две недели расписание пустое. Загрузите его файлом или добавьте пары вручную.</p>',
+      "assistant", openAssistant);
+  }
+  asstBack('<h3>На какой день?</h3>' +
+    '<div class="pick">' + days.map((d,i) =>
+      '<button class="pick-row" data-dayk="' + i + '">' +
+        '<span class="ic date"><b>' + d.date.getDate() + '</b></span>' +
+        '<span class="tx"><b>' + DAYS_SHORT[d.idx] + ", " + d.date.getDate() + " " + MONTHS[d.date.getMonth()] + '</b>' +
+        '<i>' + d.list.length + " " + plural(d.list.length,"пара","пары","пар") + '</i></span>' +
+        ICON.right + '</button>').join("") + '</div>', "assistant", openAssistant);
+  document.querySelectorAll("[data-dayk]").forEach(b => {
+    b.onclick = () => { buzz("light"); asstPickLesson(days[+b.dataset.dayk]); };
+  });
+}
+function asstPickLesson(day){
+  asstBack('<h3>' + DAYS_SHORT[day.idx] + ", " + day.date.getDate() + " " + MONTHS[day.date.getMonth()] + '</h3>' +
+    '<p class="sub">Выберите пару.</p>' +
+    '<div class="pick">' + day.list.map(l => {
+      const sub = subjById(l.subjectId);
+      return '<button class="pick-row" data-les="' + l.id + '">' +
+        '<span class="ic time"><b>' + l.time + '</b></span>' +
+        '<span class="tx"><b>' + esc(sub ? sub.name : "Пара") + '</b><i>' +
+          esc([l.kind ? l.kind.toLowerCase() : "", l.room ? "ауд. " + l.room : ""].filter(Boolean).join(", ") || "\u00a0") +
+        '</i></span>' + ICON.right + '</button>';
+    }).join("") + '</div>', "assistant", asstPickDay);
+  document.querySelectorAll("[data-les]").forEach(b => {
+    b.onclick = () => {
+      const l = state.lessons.find(x => x.id === b.dataset.les);
+      const sub = subjById(l.subjectId);
+      buzz("light");
+      asstContent({
+        scope:"lesson", owner:l.id,
+        label:(sub ? sub.name : "Пара") + " · " + day.date.getDate() + " " + MONTHS[day.date.getMonth()].slice(0,3) + ", " + l.time,
+        back:() => asstPickLesson(day)
+      });
+    };
+  });
+}
+
+/* шаг 2: содержимое */
+function asstContent(target){
+  asst = target;
+  asstBack(
+    '<h3>Что записать?</h3>' +
+    '<p class="sub">Пойдёт в «<b>' + esc(target.label) + '</b>».</p>' +
+    '<div class="asr-box" id="asrBox" contenteditable="true" data-ph="Наберите или продиктуйте микрофоном на клавиатуре"></div>' +
+    (voiceSupported ? '<button class="ghost-link" id="vToggle">Записать голосом</button>' : "") +
+    '<p class="hint" id="kbHint">Если запись подведёт — на клавиатуре телефона есть свой микрофон, он диктует в это же поле.</p>' +
+    '<button class="primary" id="asstSave" disabled>Сохранить</button>',
+    "assistant", () => { stopRec(true); (target.back || openAssistant)(); });
+
+  const box = document.getElementById("asrBox");
+  const saveBtn = document.getElementById("asstSave");
+  const sync = () => { saveBtn.disabled = !box.textContent.trim(); };
+  box.addEventListener("input", sync);
+
+  let base = "";
+  const sinkFn = text => {
+    if (!text) return;
+    box.textContent = (base ? base + " " : "") + text;
+    sync();
+  };
+  const tg = document.getElementById("vToggle");
+  if (tg) tg.onclick = () => {
+    if (recording){
+      stopRec(false); sync();
+      tg.textContent = "Записать голосом";
+      return;
+    }
+    base = box.textContent.trim();
+    if (!startRec(sinkFn, sync)){ showRecError(NO_VOICE); return; }
+    tg.textContent = "Остановить запись";
+  };
+  saveBtn.onclick = () => {
+    stopRec(true);
+    const text = box.textContent.replace(/\s+/g," ").trim();
+    if (!text) return;
+    if (target.scope === "day" && target.quad !== undefined){
+      const cut = text.indexOf(".");
+      const title = cut > 0 && cut < 60 ? text.slice(0, cut) : text.slice(0, 60);
+      state.dayNotes.unshift({ id:uid(), title:cap(title.trim()),
+        body:(cut > 0 && cut < 60 ? text.slice(cut + 1).trim() : (text.length > 60 ? text : "")),
+        quad:target.quad, done:false, ts:Date.now() });
+      save(); renderAll();
+    } else addNote(target.scope, target.owner, cap(text));
+    buzz("medium");
+    closeSheet();
+  };
+  /* запись стартует сразу: место уже выбрано, остаётся продиктовать */
+  if (voiceSupported && tg) tg.onclick();
+  else box.focus();
+}
+
+function reviewTargets(){
+  const list = [{ v:"day", label:"Заметка на день" }];
+  state.subjects.forEach(s => list.push({ v:s.id, label:"Предмет: " + s.name }));
+  review.items.forEach(it => {
+    if (it.kind === "subject" && !it.existingId)
+      list.push({ v:it.tmp, label:"Новый предмет: " + (it.name || "без названия") });
+  });
+  return list;
+}
+function renderReview(){
+  const subs = review.items.filter(i => i.kind === "subject").length;
+  const nts = review.items.filter(i => i.kind === "note").length;
+  const summary = [
+    subs ? subs + " " + plural(subs, "предмет", "предмета", "предметов") : "",
+    nts ? nts + " " + plural(nts, "заметка", "заметки", "заметок") : ""
+  ].filter(Boolean).join(", ");
+
+  const cards = review.items.map((it, i) => {
+    if (it.kind === "subject"){
+      const c = it.color || PALETTE[0];
+      return '<div class="rv" data-i="' + i + '">' +
+        '<div class="rv-head"><span class="rv-tag" style="background:' + tint(c,.16) + ';color:' + c + '">' +
+          (it.existingId ? "Дополнить предмет" : "Новый предмет") + '</span>' +
+          '<button class="del" data-rv-del="' + i + '" aria-label="Убрать">' + ICON.trash + '</button></div>' +
+        '<input class="field" data-f="name" placeholder="Название предмета" value="' + esc(it.name) + '">' +
+        '<input class="field" data-f="teacher" placeholder="Преподаватель" value="' + esc(it.teacher) + '">' +
+        '<input class="field" data-f="room" placeholder="Аудитория" value="' + esc(it.room) + '">' +
+      '</div>';
+    }
+    const opts = reviewTargets().map(t =>
+      '<option value="' + t.v + '"' + (t.v === it.target ? " selected" : "") + '>' + esc(t.label) + '</option>').join("");
+    return '<div class="rv" data-i="' + i + '">' +
+      '<div class="rv-head"><span class="rv-tag" style="background:var(--sheet);color:var(--text-3)">Заметка</span>' +
+        '<button class="del" data-rv-del="' + i + '" aria-label="Убрать">' + ICON.trash + '</button></div>' +
+      '<textarea data-f="text">' + esc(it.text) + '</textarea>' +
+      '<select class="field" data-f="target">' + opts + '</select>' +
+    '</div>';
+  }).join("");
+
+  showSheet(
+    '<h3>Проверьте разбор</h3>' +
+    '<p class="rv-summary">Нашёл: ' + (summary || "ничего") + '. Поправьте текст или смените адрес заметки — сохранится только то, что здесь.</p>' +
+    cards +
+    '<button class="primary" id="rvSave">Сохранить</button>' +
+    '<button class="ghost" id="rvBack">Вернуться к тексту</button>', "review");
+
+  document.getElementById("rvSave").onclick = saveReview;
+  document.getElementById("rvBack").onclick = () => {
+    syncReview();
+    const raw = review.raw;
+    openAssistant();
+    stopRec(true);
+    const box = document.getElementById("asrBox");
+    if (box){
+      box.textContent = raw;
+      asrText = raw;
+      const go = document.getElementById("asrGo");
+      if (go) go.disabled = !raw;
+    }
+  };
+  sheet.scrollTop = 0;
+}
+function syncReview(){
+  sheetBody.querySelectorAll(".rv").forEach(card => {
+    const it = review.items[+card.dataset.i];
+    if (!it) return;
+    card.querySelectorAll("[data-f]").forEach(el => { it[el.dataset.f] = el.value.trim(); });
+  });
+}
+function saveReview(){
+  syncReview();
+  const map = {};
+  review.items.forEach(it => {
+    if (it.kind !== "subject") return;
+    if (it.existingId){
+      const s = subjById(it.existingId);
+      if (s){
+        if (it.name) s.name = it.name;
+        if (it.teacher) s.teacher = it.teacher;
+        if (it.room) s.room = it.room;
+        map[it.tmp] = s.id;
+      }
+    } else if (it.name || it.teacher || it.room){
+      const id = uid();
+      state.subjects.push({ id:id, name:it.name || "Без названия", teacher:it.teacher, room:it.room, color:it.color, notes:[] });
+      map[it.tmp] = id;
+    }
+  });
+  review.items.forEach(it => {
+    if (it.kind !== "note" || !it.text) return;
+    let target = map[it.target] || it.target;
+    const note = { id:uid(), text:it.text, ts:Date.now() };
+    if (target === "day"){ note.done = false; state.dayNotes.unshift(note); return; }
+    const s = subjById(target);
+    if (s) s.notes.unshift(note);
+    else { note.done = false; state.dayNotes.unshift(note); }
+  });
+  save(); buzz("medium"); renderAll(); closeSheet();
+}
+sheetBody.addEventListener("click", e => {
+  const imp = e.target.closest("[data-imp-del]");
+  if (imp && importData){
+    importData.subjects.splice(+imp.dataset.impDel, 1);
+    importData.total = importData.subjects.reduce((n,s) => n + s.count, 0);
+    buzz("light");
+    if (importData.subjects.length) renderImport(); else closeSheet();
+    return;
+  }
+  const d = e.target.closest("[data-rv-del]");
+  if (!d || !review) return;
+  syncReview();
+  review.items.splice(+d.dataset.rvDel, 1);
+  buzz("light");
+  if (review.items.length) renderReview(); else closeSheet();
+});
+
+/* ---------------- импорт расписания из файла ---------------- */
+const LIB = {
+  pdf:"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+  pdfWorker:"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js",
+  docx:"https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js",
+  xlsx:"https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
+};
+const MONTH3 = { янв:0, фев:1, мар:2, апр:3, май:4, мая:4, июн:5, июл:6, авг:7, сен:8, окт:9, ноя:10, дек:11 };
+const LESSON_KINDS = /(ЛЕКЦИЯ|СЕМИНАР|ЛАБОРАТОРН[А-ЯЁA-Z]*|ПРАКТИЧЕСК[А-ЯЁA-Z]*|ПРАКТИКА|КОНСУЛЬТАЦИЯ|ЗАЧ[ЁЕ]Т|ЭКЗАМЕН)/i;
+const GROUP_CODE = /\d{2}-\d[А-ЯЁа-яё]{1,3}-[^\s]+/g;
+const POSITIONS = /(СТ\.\s?ПР\.|ДОЦ\.|ПРОФ\.|АСС\.|ПРЕП\.|АСП\.|ЗАВ\.\s?КАФ\.)/gi;
+
+function loadScript(src){
+  return new Promise((res, rej) => {
+    if (document.querySelector('script[src="' + src + '"]')) return res();
+    const s = document.createElement("script");
+    s.src = src; s.onload = () => res(); s.onerror = () => rej(new Error("нет доступа к библиотеке"));
+    document.head.appendChild(s);
+  });
+}
+
+/* Многие вузовские PDF собраны так: байты текста в кодировке cp1251,
+   а шрифт объявлен как WinAnsi (cp1252) и без карты ToUnicode.
+   Браузер честно следует объявлению и выдаёт «Ôèçè÷åñêàÿ êóëüòóðà».
+   Здесь мы это распознаём и возвращаем кириллицу обратно. */
+const CP1252_HI = {
+  0x20AC:0x80, 0x201A:0x82, 0x0192:0x83, 0x201E:0x84, 0x2026:0x85, 0x2020:0x86,
+  0x2021:0x87, 0x02C6:0x88, 0x2030:0x89, 0x0160:0x8A, 0x2039:0x8B, 0x0152:0x8C,
+  0x017D:0x8E, 0x2018:0x91, 0x2019:0x92, 0x201C:0x93, 0x201D:0x94, 0x2022:0x95,
+  0x2013:0x96, 0x2014:0x97, 0x02DC:0x98, 0x2122:0x99, 0x0161:0x9A, 0x203A:0x9B,
+  0x0153:0x9C, 0x017E:0x9E, 0x0178:0x9F
+};
+function looksMojibake(s){
+  let hi = 0, cyr = 0;
+  for (let i = 0; i < s.length; i++){
+    const c = s.charCodeAt(i);
+    if ((c >= 0x0410 && c <= 0x044F) || c === 0x0401 || c === 0x0451) cyr++;
+    else if ((c >= 0xC0 && c <= 0xFF) || CP1252_HI[c] !== undefined) hi++;
+  }
+  return hi >= 2 && hi > cyr;
+}
+let CP1251_CHARS = null;
+function cp1251Char(byte){
+  if (CP1251_CHARS === null){
+    try { CP1251_CHARS = new TextDecoder("windows-1251")
+      .decode(new Uint8Array(Array.from({length:128}, (_,k) => k + 128))); }
+    catch(e){ CP1251_CHARS = ""; }
+  }
+  return CP1251_CHARS ? CP1251_CHARS[byte - 128] : null;
+}
+/* посимвольно: неизвестный символ просто остаётся как есть, а не рушит всю строку */
+function fixMojibake(s){
+  if (!s || !looksMojibake(s)) return s;
+  let out = "";
+  for (let i = 0; i < s.length; i++){
+    const c = s.charCodeAt(i);
+    let byte = null;
+    if (c >= 0xA0 && c <= 0xFF) byte = c;
+    else if (CP1252_HI[c] !== undefined) byte = CP1252_HI[c];
+    if (byte === null){ out += s[i]; continue; }
+    const ch = cp1251Char(byte);
+    out += (ch && ch !== "\uFFFD") ? ch : s[i];
+  }
+  return /[А-Яа-яЁё]/.test(out) ? out : s;
+}
+
+async function pdfWorkerSrc(){
+  /* воркер с чужого домена в вебвью Telegram часто блокируется —
+     скачиваем его и запускаем как локальный blob */
+  try {
+    const r = await fetch(LIB.pdfWorker);
+    if (!r.ok) throw 0;
+    return URL.createObjectURL(new Blob([await r.text()], { type:"text/javascript" }));
+  } catch(e){ return LIB.pdfWorker; }
+}
+/* Возвращаем несколько вариантов текста: разные PDF по-разному хранят порядок,
+   дальше разборщик сам выберет тот, из которого получилось больше пар. */
+async function pdfToTexts(file){
+  await loadScript(LIB.pdf);
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = await pdfWorkerSrc();
+  const pdf = await window.pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+  let byRows = "", byTight = "", byOrder = "";
+  for (let p = 1; p <= pdf.numPages; p++){
+    const content = await (await pdf.getPage(p)).getTextContent();
+    const items = content.items
+      .filter(it => it.str)
+      .map(it => ({ x:it.transform[4], y:it.transform[5], w:it.width || 0, s:fixMojibake(it.str) }));
+
+    items.forEach(it => { byOrder += it.s + " "; });
+    byOrder += "\n";
+
+    const lines = [];
+    items.forEach(it => {
+      let row = null;
+      for (let i = 0; i < lines.length; i++){
+        if (Math.abs(lines[i].y - it.y) <= 3.5){ row = lines[i]; break; }
+      }
+      if (!row){ row = { y:it.y, items:[] }; lines.push(row); }
+      row.items.push(it);
+    });
+    lines.sort((a,b) => b.y - a.y);
+    lines.forEach(row => {
+      row.items.sort((a,b) => a.x - b.x);
+      let gap = "", tight = "";
+      row.items.forEach((it, i) => {
+        if (i){
+          const prev = row.items[i-1];
+          /* пробел — только если между КОНЦОМ предыдущего куска и началом текущего
+             реальный зазор; раньше сравнивалисьдва начала и пробел лез всюду */
+          const free = it.x - (prev.x + (prev.w || 0));
+          if (free > 0.8 && !/\s$/.test(gap) && !/^\s/.test(it.s)) gap += " ";
+        }
+        gap += it.s;
+        tight += it.s;
+      });
+      byRows += gap.replace(/[ \t]+/g, " ").trim() + "\n";
+      byTight += tight.replace(/[ \t]+/g, " ").trim() + "\n";
+    });
+  }
+  return [byRows, byTight, byOrder];
+}
+
+/* Файл -> набор вариантов текста либо строки таблицы */
+async function extractFile(file){
+  const name = (file.name || "").toLowerCase();
+  if (name.endsWith(".pdf")) return { kind:"text", texts: await pdfToTexts(file) };
+  if (name.endsWith(".docx")){
+    await loadScript(LIB.docx);
+    const r = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+    return { kind:"text", texts:[fixMojibake(r.value)] };
+  }
+  if (/\.(xlsx|xlsm|xls|csv)$/.test(name)){
+    await loadScript(LIB.xlsx);
+    const wb = window.XLSX.read(await file.arrayBuffer(), { type:"array", cellDates:true });
+    let rows = [];
+    wb.SheetNames.forEach(n => {
+      rows = rows.concat(window.XLSX.utils.sheet_to_json(wb.Sheets[n], { header:1, blankrows:false, defval:"", raw:false }));
+    });
+    return { kind:"rows", rows:rows.map(r => r.map(c => fixMojibake(String(c || "")))) };
+  }
+  return { kind:"text", texts:[fixMojibake(await file.text())] };
+}
+
+/* Пробуем все варианты текста и все режимы склейки, берём лучший результат */
+function bestParse(texts){
+  let best = null;
+  (texts || []).forEach(t => {
+    if (!t) return;
+    [t, t.replace(/\n/g, " ")].forEach(variant => {
+      const rows = parseDatedList(variant);
+      if (rows && (!best || rows.length > best.length)) best = rows;
+    });
+  });
+  return best;
+}
+
+/* Разбор 1: плоский список, где у каждой пары своя дата */
+function parseDatedList(text){
+  text = String(text || "")
+    .replace(/[\u2010-\u2015\u2212]/g, "-")      /* всевозможные тире -> обычный дефис */
+    .replace(/[\u00A0\u2007\u202F\u2009\u200A]/g, " "); /* неразрывные пробелы -> обычный */
+  const re = /(\d{1,2})\s*[-.\s]?\s*(янв|фев|мар|апр|мая|май|июн|июл|авг|сен|окт|ноя|дек)[а-яё]*\s*[-.\s]?\s*(\d{4}|\d{2})(?!\d)/gi;
+  const marks = [];
+  let m;
+  while ((m = re.exec(text))){
+    let y = +m[3]; if (y < 100) y += 2000;
+    marks.push({ i:m.index, len:m[0].length, d:+m[1], mo:MONTH3[m[2].toLowerCase().slice(0,3)], y:y });
+  }
+  if (marks.length < 3) return null;
+
+  const rows = [];
+  marks.forEach((mk, k) => {
+    const end = k + 1 < marks.length ? marks[k+1].i : text.length;
+    const lines = text.slice(mk.i + mk.len, end).replace(/[ \t]+/g, " ").split(/\r?\n/);
+    /* Режим 1 — данные пары лежат на одной строке (обычный PDF/Word).
+       Режим 2 — извлекатель разложил ячейки по разным строкам: склеиваем всё. */
+    const timeRe = /\d{1,2}\s*:\s*\d{2}\s*[-–—]\s*\d{1,2}\s*:\s*\d{2}/;
+    let mainIdx = lines.findIndex(l => timeRe.test(l));
+    let chunk, rest;
+    if (mainIdx >= 0 && /[А-Яа-яЁё]{4}/.test(lines[mainIdx])){
+      chunk = lines[mainIdx].trim();
+      rest = lines.slice(mainIdx + 1);
+    } else {
+      chunk = lines.join(" ").replace(/\s+/g, " ").trim();
+      rest = [];
+    }
+    chunk = chunk.replace(/(\d{1,2})\s*:\s*(\d{2})/g, "$1:$2");
+    const t = chunk.match(/(\d{1,2}:\d{2})\s*[-–—]\s*(\d{1,2}:\d{2})/);
+    if (!t) return;
+
+    let after = chunk.slice(chunk.indexOf(t[0]) + t[0].length);
+    const kindM = after.match(LESSON_KINDS);
+    let subject, tail;
+    if (kindM){
+      subject = after.slice(0, after.indexOf(kindM[0]));
+      tail = after.slice(after.indexOf(kindM[0]) + kindM[0].length);
+    } else { subject = after; tail = ""; }
+
+    tail = tail.replace(GROUP_CODE, " ").replace(POSITIONS, " ");
+    let teacher = "";
+    const tm = tail.match(/([А-ЯЁ][а-яё]+)\s+([А-ЯЁ]\.\s?[А-ЯЁ]?\.?)/);
+    if (tm){
+      teacher = tm[1] + " " + tm[2].replace(/\s+/g, "");
+      tail = tail.slice(tail.indexOf(tm[0]) + tm[0].length);
+    }
+    let room = "";
+    const rm = tail.trim().match(/^(\S+)/);
+    if (rm){
+      room = rm[1];
+      tail = tail.trim().slice(rm[1].length);
+      if (!/^[\dА-ЯЁа-яёA-Za-z][\dА-ЯЁа-яёA-Za-z.\-\/]{0,11}$/.test(room) || /^[-—–]$/.test(room)) room = "";
+    }
+    /* хвост строки, а если пусто — следующая строка, но только если она похожа
+       на продолжение названия: короткая и с маленькой буквы (не подпись документа) */
+    let cont = tail.replace(GROUP_CODE, " ").replace(/\s+/g, " ").trim();
+    if (!cont){
+      for (let li = 0; li < rest.length; li++){
+        const cand = rest[li].trim();
+        if (!cand) continue;
+        if (cand.length <= 45 && /^[а-яё(«"]/.test(cand)) cont = cand;
+        break;
+      }
+    }
+    if (cont && cont.length < 70 && !/\d{1,2}:\d{2}/.test(cont)) subject += " " + cont;
+
+    subject = subject.replace(GROUP_CODE, " ").replace(/["«»„“”]/g, " ")
+      .replace(/^\s*(ПН|ВТ|СР|ЧТ|ПТ|СБ|ВС)\s+/i, " ")
+      .replace(/\s+/g, " ").trim().replace(/[,;:]+$/, "").trim();
+    if (!subject || subject.length < 3) return;
+    const dt = new Date(mk.y, mk.mo, mk.d);
+    rows.push({
+      date: iso(dt), day: (dt.getDay() + 6) % 7,
+      time: pad(+t[1].split(":")[0]) + ":" + t[1].split(":")[1],
+      end: pad(+t[2].split(":")[0]) + ":" + t[2].split(":")[1],
+      subject: subject, teacher: teacher, room: room,
+      kind: kindM ? kindM[0].toUpperCase() : ""
+    });
+  });
+  return rows.length >= 3 ? rows : null;
+}
+
+/* Разбор 2: таблица с заголовками колонок */
+function parseTableRows(rows){
+  const want = {
+    subject:/предмет|дисциплин|занятие/i, teacher:/преподав|фио|педагог/i,
+    room:/аудит|кабинет|ауд\b|место/i, time:/время|начало|часы/i,
+    day:/день|дата|число/i, kind:/вид\s*занят|тип\s*занят|форма/i
+  };
+  let head = -1, map = {};
+  for (let i = 0; i < Math.min(rows.length, 30); i++){
+    const cells = (rows[i] || []).map(c => String(c || ""));
+    const found = {};
+    Object.keys(want).forEach(k => {
+      const idx = cells.findIndex(c => want[k].test(c));
+      if (idx >= 0) found[k] = idx;
+    });
+    if (found.subject !== undefined && (found.time !== undefined || found.day !== undefined)){ head = i; map = found; break; }
+  }
+  if (head < 0) return null;
+
+  const out = [];
+  for (let i = head + 1; i < rows.length; i++){
+    const cells = (rows[i] || []).map(c => String(c || "").trim());
+    const subject = (cells[map.subject] || "").replace(/\s+/g, " ").trim();
+    if (!subject || subject.length > 90) continue;
+    const timeCell = map.time !== undefined ? cells[map.time] : "";
+    const tm = String(timeCell).match(/(\d{1,2}[:.]\d{2})\s*[-–—]?\s*(\d{1,2}[:.]\d{2})?/);
+    if (!tm && map.time !== undefined) continue;
+    const dayCell = map.day !== undefined ? cells[map.day] : "";
+    let date = "", day = null;
+    const dm = String(dayCell).match(/(\d{1,2})[-.\s](янв|фев|мар|апр|мая|май|июн|июл|авг|сен|окт|ноя|дек)[а-яё]*[-.\s](\d{4}|\d{2})/i);
+    if (dm){
+      let y = +dm[3]; if (y < 100) y += 2000;
+      const dt = new Date(y, MONTH3[dm[2].toLowerCase().slice(0,3)], +dm[1]);
+      date = iso(dt); day = (dt.getDay() + 6) % 7;
+    } else {
+      const low = norm(dayCell);
+      DAY_KEYS.forEach((keys, idx) => { if (keys.some(k => low.indexOf(k) >= 0)) day = idx; });
+      if (day === null && /^[0-6]$/.test(low)) day = +low;
+    }
+    if (day === null) continue;
+    out.push({
+      date: date, day: day,
+      time: tm ? pad(+tm[1].split(/[:.]/)[0]) + ":" + tm[1].split(/[:.]/)[1] : "09:00",
+      end: tm && tm[2] ? pad(+tm[2].split(/[:.]/)[0]) + ":" + tm[2].split(/[:.]/)[1] : "",
+      subject: subject,
+      teacher: (map.teacher !== undefined ? cells[map.teacher] : "").replace(POSITIONS, "").replace(/\s+/g, " ").trim(),
+      room: (map.room !== undefined ? cells[map.room] : "").replace(/^[-—–]$/, "").trim(),
+      kind: map.kind !== undefined ? String(cells[map.kind] || "").toUpperCase() : ""
+    });
+  }
+  return out.length >= 3 ? out : null;
+}
+
+/* Сводим строки к предметам и парам */
+function buildImport(rows){
+  const byName = new Map();
+  rows.forEach(r => {
+    const key = norm(r.subject);
+    if (!byName.has(key)) byName.set(key, { name:r.subject, teachers:{}, rooms:{}, rows:[] });
+    const s = byName.get(key);
+    if (r.subject.length > s.name.length) s.name = r.subject;
+    if (r.teacher) s.teachers[r.teacher] = (s.teachers[r.teacher] || 0) + 1;
+    if (r.room) s.rooms[r.room] = (s.rooms[r.room] || 0) + 1;
+    s.rows.push(r);
+  });
+  /* обрезанное на переносе название («Практикум Деловая») склеиваем
+     с полным, если одно начинается с другого */
+  const keys = Array.from(byName.keys()).sort((a,b) => b.length - a.length);
+  keys.forEach(short => {
+    if (!byName.has(short)) return;
+    const long = keys.find(k => k !== short && byName.has(k) && k.length > short.length && k.indexOf(short) === 0);
+    if (!long) return;
+    const from = byName.get(short), to = byName.get(long);
+    from.rows.forEach(r => { r.subject = to.name; to.rows.push(r); });
+    Object.keys(from.teachers).forEach(t => { to.teachers[t] = (to.teachers[t] || 0) + from.teachers[t]; });
+    Object.keys(from.rooms).forEach(t => { to.rooms[t] = (to.rooms[t] || 0) + from.rooms[t]; });
+    byName.delete(short);
+  });
+
+  const top = o => Object.keys(o).sort((a,b) => o[b] - o[a])[0] || "";
+  const subjects = [];
+  let i = 0;
+  byName.forEach(s => {
+    subjects.push({
+      name: s.name, teacher: top(s.teachers), room: top(s.rooms),
+      count: s.rows.length, rows: s.rows,
+      color: PALETTE[i++ % PALETTE.length]
+    });
+  });
+  subjects.sort((a,b) => b.count - a.count);
+  const dates = rows.filter(r => r.date).map(r => r.date).sort();
+  return { subjects:subjects, total:rows.length, from:dates[0] || "", to:dates[dates.length-1] || "" };
+}
+
+let importData = null;
+function humanDate(isoStr){
+  if (!isoStr) return "";
+  const p = isoStr.split("-");
+  return (+p[2]) + " " + MONTHS[+p[1] - 1];
+}
+function openImport(){
+  document.getElementById("fileInput").value = "";
+  document.getElementById("fileInput").click();
+}
+async function handleFile(file){
+  showSheet('<h3>Читаю файл</h3><p class="sub">' + esc(file.name) + '</p>' +
+    '<div class="loading">Разбираю расписание…</div>', "import");
+  try {
+    const data = await extractFile(file);
+    let rows = null, raw = "";
+    if (data.kind === "rows"){
+      raw = data.rows.slice(0, 60).map(r => r.join(" | ")).join("\n");
+      rows = parseTableRows(data.rows);
+      if (!rows) rows = bestParse([data.rows.map(r => r.join(" ")).join("\n")]);
+    } else {
+      const cand = (data.texts || []).filter(Boolean);
+      raw = cand.slice(1).reduce((a, b) =>
+        (b.match(/\d{1,2}\s*:\s*\d{2}/g) || []).length > (a.match(/\d{1,2}\s*:\s*\d{2}/g) || []).length ? b : a,
+        cand[0] || "");
+      rows = bestParse(data.texts);
+    }
+    if (!rows || !rows.length) return importFailed(raw);
+    importData = buildImport(rows);
+    renderImport();
+  } catch(e){
+    showSheet('<h3>Не получилось</h3><p class="sub">' + esc(e && e.message ? e.message : "ошибка чтения файла") +
+      '. Для разбора файлов нужен интернет — библиотека подгружается при первом импорте.</p>' +
+      '<button class="primary" id="impRetry">Попробовать снова</button>' +
+      '<button class="ghost" id="impPaste">Вставить текст расписания</button>' +
+      '<button class="ghost" id="impCancel">Закрыть</button>', "import");
+    document.getElementById("impRetry").onclick = openImport;
+    document.getElementById("impPaste").onclick = openPasteImport;
+    document.getElementById("impCancel").onclick = closeSheet;
+  }
+}
+function importFailed(raw){
+  const txt = (raw || "").replace(/\n{2,}/g, "\n");
+  /* показываем не шапку документа, а кусок оттуда, где должны лежать пары */
+  const timeAt = txt.search(/\d{1,2}\s*:\s*\d{2}/);
+  const dates = (txt.match(/\d{1,2}\s*[-.\s]?\s*(янв|фев|мар|апр|мая|май|июн|июл|авг|сен|окт|ноя|дек)/gi) || []).length;
+  const times = (txt.match(/\d{1,2}\s*:\s*\d{2}/g) || []).length;
+  const from = timeAt > 0 ? Math.max(0, timeAt - 90) : 0;
+  const preview = txt.slice(from, from + 1100).trim();
+  const stats = "Прочитано символов: " + txt.length +
+    " · дат найдено: " + dates + " · времени найдено: " + times;
+  showSheet('<h3>Не разобрал</h3>' +
+    '<p class="sub">' + (txt.trim()
+      ? (timeAt > 0
+          ? 'Текст прочитан и время занятий в нём есть, но собрать строки в пары не вышло. Ниже — фрагмент как раз с этого места.'
+          : 'Текст прочитан, но ни одного времени вида «10:40» в нём нет. Похоже, таблица не попала в текстовый слой.')
+      : 'Из файла не удалось вычитать ни строчки. Скорее всего это скан или картинка.') + '</p>' +
+    (txt.trim() ? '<p class="hint" style="margin:-4px 0 10px">' + esc(stats) + '</p>' : "") +
+    (preview ? '<div class="asr-box" style="max-height:220px;overflow:auto;white-space:pre-wrap;font-size:12.5px">' + esc(preview) + '</div>' : "") +
+    '<button class="primary" id="impPaste">Вставить текст вручную</button>' +
+    '<button class="ghost" id="impRetry">Выбрать другой файл</button>' +
+    (preview ? '<button class="ghost" id="impCopy">Скопировать прочитанное</button>' : "") +
+    '<button class="ghost" id="impCancel">Закрыть</button>', "import");
+  const cp = document.getElementById("impCopy");
+  if (cp) cp.onclick = () => {
+    try { navigator.clipboard.writeText(stats + "\n\n" + preview); cp.textContent = "Скопировано"; }
+    catch(e){ cp.textContent = "Не вышло скопировать"; }
+  };
+  document.getElementById("impPaste").onclick = openPasteImport;
+  document.getElementById("impRetry").onclick = openImport;
+  document.getElementById("impCancel").onclick = closeSheet;
+}
+function openPasteImport(){
+  showSheet('<h3>Вставьте расписание</h3>' +
+    '<p class="sub">Откройте файл, выделите таблицу, скопируйте и вставьте сюда. Формат строки: дата, день, время, предмет, преподаватель, аудитория.</p>' +
+    '<textarea id="pasteBox" style="min-height:170px" placeholder="02-сен-2026 СР 10:40 - 12:10 Физическая культура ЛЕКЦИЯ Чибисов В.Г. 108"></textarea>' +
+    '<button class="primary" id="pasteGo" disabled>Разобрать</button>' +
+    '<button class="ghost" id="impCancel">Отмена</button>', "import");
+  const box = document.getElementById("pasteBox");
+  const go = document.getElementById("pasteGo");
+  box.addEventListener("input", () => { go.disabled = box.value.trim().length < 20; });
+  go.onclick = () => {
+    const rows = bestParse([box.value]);
+    if (!rows || !rows.length){
+      box.style.outline = "2px solid var(--coral)";
+      go.textContent = "Не нашёл строк с датой и временем";
+      return;
+    }
+    importData = buildImport(rows);
+    buzz("medium");
+    renderImport();
+  };
+  document.getElementById("impCancel").onclick = closeSheet;
+  box.focus();
+}
+function renderImport(){
+  const d = importData;
+  const period = d.from ? "с " + humanDate(d.from) + " по " + humanDate(d.to) : "без дат, по дням недели";
+  showSheet(
+    '<h3>Нашёл расписание</h3>' +
+    '<p class="rv-summary">' + d.subjects.length + " " + plural(d.subjects.length,"предмет","предмета","предметов") +
+      ", " + d.total + " " + plural(d.total,"пара","пары","пар") + ", " + period + '.</p>' +
+    d.subjects.map((s,i) =>
+      '<div class="imp-row"><span class="dot" style="background:' + s.color + '"></span>' +
+      '<span class="txt"><b>' + esc(s.name) + '</b><span>' +
+        esc([s.teacher, s.room ? "ауд. " + s.room : ""].filter(Boolean).join(", ") || "без преподавателя") +
+      '</span></span><span class="cnt">' + s.count + '</span>' +
+      '<button class="del" data-imp-del="' + i + '" aria-label="Убрать">' + ICON.trash + '</button></div>').join("") +
+    '<button class="primary" id="impAdd">Добавить в расписание</button>' +
+    '<button class="ghost" id="impReplace">Заменить всё расписание</button>', "import");
+
+  document.getElementById("impAdd").onclick = () => applyImport(false);
+  document.getElementById("impReplace").onclick = () => applyImport(true);
+  sheet.scrollTop = 0;
+}
+function applyImport(replace){
+  const d = importData;
+  if (replace){ state.subjects = []; state.lessons = []; }
+  d.subjects.forEach(s => {
+    let subj = state.subjects.find(x => norm(x.name) === norm(s.name));
+    if (!subj){
+      subj = { id:uid(), name:s.name, teacher:s.teacher, room:s.room, color:s.color, notes:[] };
+      state.subjects.push(subj);
+    } else {
+      if (!subj.teacher && s.teacher) subj.teacher = s.teacher;
+      if (!subj.room && s.room) subj.room = s.room;
+    }
+    s.rows.forEach(r => {
+      const dup = state.lessons.some(l => l.subjectId === subj.id && l.time === r.time &&
+        (r.date ? l.date === r.date : l.day === r.day && !l.date));
+      if (dup) return;
+      state.lessons.push({
+        id:uid(), subjectId:subj.id, day:r.day, date:r.date || "",
+        time:r.time, end:r.end || "", room:r.room || "", kind:r.kind || "", notes:[]
+      });
+    });
+  });
+  state.onboarded = true;
+  save(); buzz("medium");
+  importData = null;
+  intro.hidden = true; app.hidden = false;
+  weekOffset = 0; selectedDay = todayIdx();
+  renderAll(); closeSheet();
+}
+document.getElementById("fileInput").addEventListener("change", e => {
+  const f = e.target.files && e.target.files[0];
+  if (f) handleFile(f);
+});
+
+/* ---------------- события ---------------- */
+document.getElementById("recBtn").onclick = () => {
+  if (recording && sheetOpen === "assistant"){ stopRec(false); return; }
+  buzz("medium"); openAssistant();
+};
+document.getElementById("dayNotesBtn").onclick = () => { buzz("light"); openDayNotes(); };
+document.getElementById("addSubjectBtn").onclick = () => openSubjectForm(null);
+document.getElementById("addLessonBtn").onclick = openLessonForm;
+document.getElementById("importBtn").onclick = () => { buzz("light"); openImport(); };
+document.getElementById("weekNav").addEventListener("click", e => {
+  const b = e.target.closest("[data-week]");
+  if (!b) return;
+  weekOffset += +b.dataset.week;
+  buzz("light"); renderWeek(); renderTimeline();
+});
+document.getElementById("bellBtn").onclick = () => { buzz("light"); openNotifySheet(); };
+document.getElementById("resetBtn").onclick = () => {
+  showSheet('<h3>Сбросить всё?</h3><p class="sub">Предметы, расписание и заметки удалятся. Отменить будет нельзя.</p>' +
+    '<button class="primary" id="doReset" style="background:linear-gradient(135deg,#FF3B5C,#FF6B4A)">Удалить и настроить заново</button>' +
+    '<button class="ghost" id="cancelReset">Отмена</button>', "reset");
+  document.getElementById("doReset").onclick = () => {
+    state = emptyState(); save(); closeSheet(); showIntro();
+  };
+  document.getElementById("cancelReset").onclick = closeSheet;
+};
+
+document.getElementById("subjectList").addEventListener("click", e => {
+  const t = e.target.closest("[data-toggle]");
+  if (t){ const id = t.dataset.toggle; openSubjects.has(id) ? openSubjects.delete(id) : openSubjects.add(id); buzz("light"); renderSubjects(); return; }
+  const ed = e.target.closest("[data-edit-subject]");
+  if (ed) openSubjectForm(ed.dataset.editSubject);
+});
+document.getElementById("week").addEventListener("click", e => {
+  const b = e.target.closest("[data-day]"); if (!b) return;
+  selectedDay = +b.dataset.day; buzz("light"); renderWeek(); renderTimeline();
+});
+document.getElementById("timeline").addEventListener("click", e => {
+  const t = e.target.closest("[data-lesson-toggle]");
+  if (t){ const id = t.dataset.lessonToggle; openLessons.has(id) ? openLessons.delete(id) : openLessons.add(id); buzz("light"); renderTimeline(); return; }
+  const d = e.target.closest("[data-del-lesson]");
+  if (d){ state.lessons = state.lessons.filter(l => l.id !== d.dataset.delLesson); save(); renderAll(); }
+});
+document.addEventListener("click", e => {
+  const send = e.target.closest("[data-send]");
+  if (send){
+    const ta = document.querySelector('[data-input="' + send.dataset.send + '"][data-owner="' + send.dataset.owner + '"]');
+    const key = draftKey(send.dataset.send, send.dataset.owner);
+    const text = (ta ? ta.value : "") || drafts[key] || "";
+    if (text.trim()){ delete drafts[key]; addNote(send.dataset.send, send.dataset.owner, text); if (ta) ta.value = ""; }
+    return;
+  }
+  const voice = e.target.closest("[data-voice]");
+  if (voice){ buzz("medium"); openVoice({ scope:voice.dataset.voice, owner:voice.dataset.owner }); return; }
+  const del = e.target.closest("[data-del]");
+  if (del){
+    const scope = del.dataset.del, owner = del.dataset.owner, nid = del.dataset.note;
+    if (scope === "subject"){ const s = subjById(owner); if (s) s.notes = s.notes.filter(n => n.id !== nid); }
+    else if (scope === "lesson"){ const l = state.lessons.find(x => x.id === owner); if (l) l.notes = l.notes.filter(n => n.id !== nid); }
+    else state.dayNotes = state.dayNotes.filter(n => n.id !== nid);
+    save(); renderAll();
+    if (sheetOpen === "day") openDayNotes();
+    return;
+  }
+  const tick = e.target.closest("[data-tick]");
+  if (tick){
+    const n = state.dayNotes.find(x => x.id === tick.dataset.tick);
+    if (n){ n.done = !n.done; save(); buzz("light"); renderDayPill(); openDayNotes(); }
+    return;
+  }
+  const add = e.target.closest("[data-add]");
+  if (add){ buzz("light"); openQuadForm(+add.dataset.add, null); return; }
+  const on = e.target.closest("[data-open-note]");
+  if (on){
+    if (document.body.classList.contains("dragging")) return;
+    const inq = on.dataset.inQuad;
+    buzz("light");
+    openNoteView(on.dataset.openNote, inq !== undefined ? () => openQuadFull(+inq) : null);
+    return;
+  }
+  const fl = e.target.closest("[data-full]");
+  if (fl){
+    if (document.body.classList.contains("dragging")) return;
+    buzz("light"); openQuadFull(+fl.dataset.full); return;
+  }
+  const mv = e.target.closest("[data-move]");
+  if (mv){ buzz("light"); openQuadPick(mv.dataset.move); return; }
+  const srt = e.target.closest("[data-sort]");
+  if (srt){ buzz("light"); openQuadPick(srt.dataset.sort); return; }
+});
+document.addEventListener("input", e => {
+  if (e.target.matches("textarea[data-input]")){
+    /* держим набранное отдельно от разметки: перерисовка списка больше
+       не стирает недописанную заметку */
+    drafts[draftKey(e.target.dataset.input, e.target.dataset.owner)] = e.target.value;
+    e.target.style.height = "auto";
+    e.target.style.height = Math.min(e.target.scrollHeight, 130) + "px";
+  }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && e.target.matches("textarea[data-input]")){
+    e.preventDefault();
+    delete drafts[draftKey(e.target.dataset.input, e.target.dataset.owner)];
+    addNote(e.target.dataset.input, e.target.dataset.owner, e.target.value);
+    e.target.value = ""; e.target.style.height = "auto";
+  }
+  if (e.key === "Escape" && sheetOpen) closeSheet();
+});
+
+function applyTheme(night){
+  document.documentElement.classList.toggle("night", !!night);
+  try { tg && tg.setHeaderColor && tg.setHeaderColor("#3D1FA8"); } catch(e){}
+  try { tg && tg.setBackgroundColor && tg.setBackgroundColor(night ? "#0B0912" : "#F4F2FA"); } catch(e){}
+}
+document.getElementById("themeBtn").onclick = () => {
+  state.night = !document.documentElement.classList.contains("night");
+  applyTheme(state.night); save(); buzz("light");
+};
+
+/* ---------------- старт ---------------- */
+load(saved => {
+  state = saved && saved.subjects ? saved : emptyState();
+  if (!("onboarded" in state)) state.onboarded = true;
+  const night = state.night === null || state.night === undefined
+    ? (tg ? tg.colorScheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches)
+    : state.night;
+  applyTheme(night);
+  if (!state.onboarded) showIntro();
+  else { intro.hidden = true; app.hidden = false; renderAll(); }
+  renderNotify();
+  if (state.onboarded) pushServer(false);
+  setInterval(() => {
+    if (syncPending) pushCloud();
+    if (app.hidden) return;
+    /* пока поле в фокусе — не перерисовываем, иначе набираемый текст
+       и клавиатура слетают прямо под руками */
+    const el = document.activeElement;
+    if (el && el.matches && el.matches("textarea, input, [contenteditable]")) return;
+    renderHero();
+    if (selectedDay === todayIdx()) renderTimeline();
+  }, 30000);
+});
+</script>
+</body>
+</html>
