@@ -126,6 +126,8 @@ html.night .note{background:#100E1A}
 .note p{margin:0;flex:1;overflow-wrap:anywhere}
 .note time{display:block;font-size:11.5px;color:var(--text-3);margin-top:4px}
 .note .del{color:var(--text-3);padding:2px;flex:none}
+.note p[data-edit]{cursor:text}
+.note .del + .del{margin-left:-4px}
 .empty{font-size:13px;color:var(--text-3);padding:4px 0 12px;margin:0}
 .empty-box{padding:6px 16px 20px;text-align:center}
 .empty-box p{margin:0 0 14px;font-size:13.5px;color:var(--text-3)}
@@ -874,6 +876,7 @@ function plural(n, one, few, many){
 }
 const minWord = n => n + " " + plural(n, "минуту", "минуты", "минут");
 const ICON = {
+  pen:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
   mic:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>',
   micBig:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>',
   stop:'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="3"/></svg>',
@@ -1415,9 +1418,32 @@ function renderDayPill(){
     : open + " " + plural(open, "невыполненная задача", "невыполненные задачи", "невыполненных задач");
 }
 function noteHTML(n, scope, id){
+  const a = 'data-owner="' + id + '" data-note="' + n.id + '"';
   return '<div class="note' + (n.done ? " done" : "") + '">' +
-    '<p>' + esc(n.text) + '<time>' + when(n.ts) + '</time></p>' +
-    '<button class="del" data-del="' + scope + '" data-owner="' + id + '" data-note="' + n.id + '" aria-label="Удалить">' + ICON.trash + '</button></div>';
+    '<p data-edit="' + scope + '" ' + a + '>' + esc(n.text) + '<time>' + when(n.ts) + (n.edited ? " · изменено" : "") + '</time></p>' +
+    '<button class="del" data-edit="' + scope + '" ' + a + ' aria-label="Изменить">' + ICON.pen + '</button>' +
+    '<button class="del" data-del="' + scope + '" ' + a + ' aria-label="Удалить">' + ICON.trash + '</button></div>';
+}
+function findNote(scope, owner, nid){
+  const host = scope === "subject" ? subjById(owner) : scope === "lesson" ? state.lessons.find(x => x.id === owner) : null;
+  return host ? (host.notes || []).find(n => n.id === nid) : null;
+}
+function openNoteEdit(scope, owner, nid){
+  const n = findNote(scope, owner, nid);
+  if (!n) return;
+  showSheet('<h3>Изменить заметку</h3>' +
+    '<textarea class="field" id="noteEditTa" rows="5">' + esc(n.text) + '</textarea>' +
+    '<button class="primary" id="noteEditSave">Сохранить</button>' +
+    '<button class="ghost" id="noteEditCancel">Отмена</button>', "noteEdit");
+  const ta = document.getElementById("noteEditTa");
+  setTimeout(() => { try { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } catch(e){} }, 60);
+  document.getElementById("noteEditSave").onclick = () => {
+    const t = ta.value.trim();
+    if (!t){ ta.focus(); return; }
+    if (t !== n.text){ n.text = t; n.edited = Date.now(); save(); }
+    buzz("light"); closeSheet(); renderAll();
+  };
+  document.getElementById("noteEditCancel").onclick = closeSheet;
 }
 const drafts = {};
 const draftKey = (scope, id) => scope + ":" + id;
@@ -1794,7 +1820,6 @@ function openDayNotes(){
       '<button class="' + (dayView() === "list" ? "on" : "") + '" data-view="list">Списком</button>' +
       '<button class="' + (dayView() === "matrix" ? "on" : "") + '" data-view="matrix">Матрица</button>' +
     '</div>' +
-    '<p class="swipe-hint">или смахните влево / вправо</p>' +
     (doneCount()
       ? '<button class="donetgl' + (hideDone() ? " on" : "") + '" id="doneTgl">' +
           (hideDone() ? ICON.eyeOff : ICON.eye) +
@@ -3153,6 +3178,8 @@ document.addEventListener("click", e => {
   }
   const voice = e.target.closest("[data-voice]");
   if (voice){ buzz("medium"); openVoice({ scope:voice.dataset.voice, owner:voice.dataset.owner }); return; }
+  const ed = e.target.closest("[data-edit]");
+  if (ed && ed.dataset.note){ buzz("light"); openNoteEdit(ed.dataset.edit, ed.dataset.owner, ed.dataset.note); return; }
   const del = e.target.closest("[data-del]");
   if (del){
     const scope = del.dataset.del, owner = del.dataset.owner, nid = del.dataset.note;
