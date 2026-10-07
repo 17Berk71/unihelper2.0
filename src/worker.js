@@ -31,10 +31,29 @@ function kvStore(kv){
    (на бесплатном тарифе KV — 1000 записей в сутки) */
 const essence = s => JSON.stringify([s.tz, s.notify, s.subjects, s.lessons, s.urgent, s.appUrl]);
 
+/* Ищем токен: сначала BOT_TOKEN, потом любая переменная, похожая на токен
+   (на случай опечатки в имени: bot_token, BOT TOKEN, TOKEN…) */
+const TOKEN_RE = /\d{5,}:[A-Za-z0-9_-]{30,}/;
+function findToken(env){
+  const direct = cleanToken(env.BOT_TOKEN);
+  if (direct) return direct;
+  for (const k of Object.keys(env)){
+    const v = env[k];
+    if (typeof v === "string" && TOKEN_RE.test(v)) return cleanToken(v);
+  }
+  return "";
+}
+function noTokenError(env){
+  const names = Object.keys(env).filter(k => typeof env[k] === "string");
+  return "Cloudflare: на сервере не задан BOT_TOKEN. " + (names.length
+    ? "Сервер видит переменные: " + names.join(", ") + " — но ни в одной нет токена бота."
+    : "Сервер не видит ни одной переменной: секрет добавлен не туда (не в «Сборку») или после добавления не нажато «Развернуть».");
+}
+
 async function sync(req, env, origin){
   if (req.method !== "POST") return json({ ok: false, error: "POST only" }, 405);
-  const token = cleanToken(env.BOT_TOKEN);
-  if (!token) return json({ ok: false, error: "На сервере не задан BOT_TOKEN" }, 500);
+  const token = findToken(env);
+  if (!token) return json({ ok: false, error: noTokenError(env) }, 500);
 
   let body;
   try { body = await req.json(); } catch (e) { return json({ ok: false, error: "bad json" }, 400); }
@@ -72,8 +91,8 @@ async function sync(req, env, origin){
 }
 
 async function morning(env){
-  const token = cleanToken(env.BOT_TOKEN);
-  if (!token){ console.log("BOT_TOKEN не задан"); return; }
+  const token = findToken(env);
+  if (!token){ console.log(noTokenError(env)); return; }
   const res = await runMorning({
     store: kvStore(env.USERS),
     send: (chatId, text, snap) => sendMessage(token, chatId, text, snap && snap.appUrl)
